@@ -5,12 +5,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<parent>
-		<groupId>eu.ddmore</groupId>
-		<artifactId>eu.ddmore.mdl.parent</artifactId>
+		<groupId>com.uk.eightpillars.mdl</groupId>
+		<artifactId>com.uk.eightpillars.mdl.parent</artifactId>
 		<version>1.6.1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>eu.ddmore.mdl.converter.mdl2mrgsolve.tests</artifactId>
+	<artifactId>com.uk.eightpillars.mdl.converter.mrgsolve.tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
 	
 	<build>
