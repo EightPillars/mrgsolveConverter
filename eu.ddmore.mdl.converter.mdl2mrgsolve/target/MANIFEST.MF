@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Export-Package: eu.ddmore.converter.mdl2pharmml,eu.ddmore.converter.md
+ l2pharmml08,eu.ddmore.converter.treerewrite,eu.ddmore.mdl.generator
+Require-Bundle: eu.ddmore.mdl,org.eclipse.xtext.xbase;visibility:=reex
+ port,org.eclipse.xtext.generator,org.eclipse.emf.mwe2.launch;visibili
+ ty:=reexport,org.apache.log4j,org.apache.commons.logging,org.eclipse.
+ xtext,org.eclipse.xtext.util,org.eclipse.emf.ecore,org.eclipse.emf.co
+ mmon,org.antlr.runtime,org.eclipse.xtext.common.types,org.objectweb.a
+ sm,org.eclipse.core.resources,org.eclipse.core.runtime,eu.ddmore.mdll
+ ib;visibility:=reexport,org.eclipse.xtext.xbase.lib,eu.ddmore.mdl.def
+ initions;visibility:=reexport
+Bundle-Version: 1.6.1.v20170211-1727
+Bundle-Name: Mdl2pharmml Converter
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: eu.ddmore.mdl.converter.mdl2pharmml
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+

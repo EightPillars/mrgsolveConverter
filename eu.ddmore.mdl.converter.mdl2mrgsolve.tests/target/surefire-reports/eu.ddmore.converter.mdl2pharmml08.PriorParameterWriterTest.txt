@@ -1,0 +1,10 @@
+-------------------------------------------------------------------------------
+Test set: eu.ddmore.converter.mdl2pharmml08.PriorParameterWriterTest
+-------------------------------------------------------------------------------
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.076 sec - in eu.ddmore.converter.mdl2pharmml08.PriorParameterWriterTest
+testWritePriorWithMathsExpr(eu.ddmore.converter.mdl2pharmml08.PriorParameterWriterTest)  Time elapsed: 0.012 sec
+testWritePriorWithLiteral(eu.ddmore.converter.mdl2pharmml08.PriorParameterWriterTest)  Time elapsed: 0.012 sec
+testWriteParamNotInPriorObj(eu.ddmore.converter.mdl2pharmml08.PriorParameterWriterTest)  Time elapsed: 0.012 sec
+testWriteVarLevelWithReference(eu.ddmore.converter.mdl2pharmml08.PriorParameterWriterTest)  Time elapsed: 0.013 sec
+testWritePriorDistn(eu.ddmore.converter.mdl2pharmml08.PriorParameterWriterTest)  Time elapsed: 0.012 sec
+testWriteVarLevels(eu.ddmore.converter.mdl2pharmml08.PriorParameterWriterTest)  Time elapsed: 0.012 sec

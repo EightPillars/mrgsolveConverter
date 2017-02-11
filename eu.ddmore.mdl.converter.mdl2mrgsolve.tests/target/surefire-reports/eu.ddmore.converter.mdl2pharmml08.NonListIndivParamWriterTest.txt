@@ -1,0 +1,5 @@
+-------------------------------------------------------------------------------
+Test set: eu.ddmore.converter.mdl2pharmml08.NonListIndivParamWriterTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 sec - in eu.ddmore.converter.mdl2pharmml08.NonListIndivParamWriterTest
+testWriteIndivParamExplicit(eu.ddmore.converter.mdl2pharmml08.NonListIndivParamWriterTest)  Time elapsed: 0.012 sec

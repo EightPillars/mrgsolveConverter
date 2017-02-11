@@ -1,0 +1,183 @@
+# Rocchetti 2013
+# TGI model in vivo with two drugs in combination
+# Update version to MDL version Product 4
+
+rocchetti2013_dsgn = designObj{
+	DECLARED_VARIABLES {
+		Y::observation 
+		Q0_A::dosingTarget 
+		Q0_B::dosingTarget
+	}
+
+	DESIGN_PARAMETERS{
+		totDoseA = 80 #=20mg/kg+20mg/kg+20mg/kg+20mg/kg (initial value, design on this variable)
+		indDoseB = 20 # 12 times 20mg/kg
+		
+		#dose levels at dosing events 2,3,4 relative to first level
+		f2_A = 1
+		f3_A = 1
+		f4_A = 1
+
+		#dose fractions (normalised)
+		p1_A = 1/(1+f2_A+f3_A+f4_A) 
+		p2_A = f2_A/(1+f2_A+f3_A+f4_A)
+		p3_A = f3_A/(1+f2_A+f3_A+f4_A)
+		p4_A = f4_A/(1+f2_A+f3_A+f4_A)
+	}
+
+	INTERVENTION{
+		bolA1 : { type is bolus, input = Q0_A, amount=totDoseA*p1_A, doseTime=[8]}
+		bolA2 : { type is bolus, input = Q0_A, amount=totDoseA*p2_A, doseTime=[12]}
+		bolA3 : { type is bolus, input = Q0_A, amount=totDoseA*p3_A, doseTime=[16]}	
+		bolA4 : { type is bolus, input = Q0_A, amount=totDoseA*p3_A, doseTime=[20]}	
+		
+		bolB1 : { type is bolus, input = Q0_B, amount=indDoseB, doseTime=[9]} #can I write [9,10,11,13,14,15,17,18,19,21,22,23] instead?
+		bolB2 : { type is bolus, input = Q0_B, amount=indDoseB, doseTime=[10]}
+		bolB3 : { type is bolus, input = Q0_B, amount=indDoseB, doseTime=[11]}
+		bolB4 : { type is bolus, input = Q0_B, amount=indDoseB, doseTime=[13]}
+		bolB5 : { type is bolus, input = Q0_B, amount=indDoseB, doseTime=[14]}
+		bolB6 : { type is bolus, input = Q0_B, amount=indDoseB, doseTime=[15]}
+		bolB7 : { type is bolus, input = Q0_B, amount=indDoseB, doseTime=[17]}
+		bolB8 : { type is bolus, input = Q0_B, amount=indDoseB, doseTime=[18]}
+		bolB9 : { type is bolus, input = Q0_B, amount=indDoseB, doseTime=[19]}
+		bolB10 : { type is bolus, input = Q0_B, amount=indDoseB, doseTime=[21]}
+		bolB11 : { type is bolus, input = Q0_B, amount=indDoseB, doseTime=[22]}
+		bolB12 : { type is bolus, input = Q0_B, amount=indDoseB, doseTime=[23]}		
+		
+		combA : { type is combi, combination=[bolA1, bolA2, bolA3, bolA4, bolB1, bolB2, bolB3, bolB4, bolB5, bolB6, bolB7, bolB8, bolB9, bolB10, bolB11, bolB12], start=[0] }
+	}
+	
+	SAMPLING{
+		sampl1 : { type is simple, outcome=Y, sampleTime=[28] }
+	}
+	
+	DESIGN_SPACES{
+		DS1A : { objRef=[f2_A], range=[0,10], element is parameter } 
+		DS2A : { objRef=[f3_A], range=[0,10], element is parameter } 
+		DS3A : { objRef=[f4_A], range=[0,10], element is parameter } 
+  }
+
+	STUDY_DESIGN{
+		armA : { armSize = 1, interventionSequence = { admin=[combA], start=0 }, samplingSequence={ sample=sampl1, start=0 } }
+	}
+
+}
+
+rocchetti2013_par = parObj{
+
+   STRUCTURAL{
+    # fake population variables, this works fine for specific population tools
+	POP_LAMBDA0 : { fix=true, value=0.14615 } #units="1/day"
+	POP_LAMBDA1 : { fix=true, value=0.130258 } #units="g/day"
+	POP_K1 : { fix=true, value=7.59567 } #units="1/day"
+	POP_K2 : { fix=true, value=0.234188 } #units="L/umol/day"
+	POP_IC50 : { fix=true, value=1.75966 } #units="umol/L"
+	POP_W0 : { fix=true, value=0.0612893 } #units="g"
+    POP_IC50COMBO : { value=3.6, lo=0 } #units="umol/L"
+   }# end STRUCTURAL
+
+	VARIABILITY{
+   		CV : {value=0.1, lo=0}
+   	}# end VARIABILITY
+} # end of parameter object
+
+
+rocchetti2013_mdl = mdlObj{
+	IDV{ T }
+	
+    VARIABILITY_LEVELS{
+		DV: {level=1, type is observation}	
+	}
+	
+	STRUCTURAL_PARAMETERS{
+    	POP_LAMBDA0
+      	POP_LAMBDA1
+      	POP_K1
+      	POP_K2
+      	POP_IC50
+      	POP_IC50COMBO
+      	POP_W0
+	} # end STRUCTURAL_PARAMETERS
+	
+	VARIABILITY_PARAMETERS{
+    	CV
+	} # end VARIABILITY_PARAMETERS 
+	
+   	INDIVIDUAL_VARIABLES{
+   	    # dummy assignment to solve individual parameters estimates
+   		LAMBDA0 = POP_LAMBDA0
+		LAMBDA1 = POP_LAMBDA1
+		K1 = POP_K1
+		K2 = POP_K2
+		IC50 = POP_IC50
+		IC50COMBO = POP_IC50COMBO
+		W0 = POP_W0
+   	}# end INDIVIDUAL_VARIABLES
+   	
+   	MODEL_PREDICTION{
+		DEQ{
+	    	KA_A=24*ln(2)/6.19 #=2.69 1/day
+      		KE_A=ln(2)/6.05 #=0.115 1/day
+     		FV1_A=1/0.119 #8.4 kg/L
+      		KA_B=18.8 #1/day
+      		KE_B=49.2 #1/day
+      		K21=10.4 #1/day
+      		K12=141.1 #1/day
+      		FV1_B=1/2.13 #0.469 kg/L
+      		EMAX=1
+      		PSI=20
+      		INV_PSI = 1/PSI	
+      		
+      		#beginning equations	
+	    	C1_A=Q1_A*FV1_A
+			C1_B=Q1_B*FV1_B
+			K2INH=K2*(1-C1_A/(C1_A+IC50COMBO))
+			WTOT=Z0+Z1+Z2+Z3
+        	EFF = (Z0+Z1+Z2+Z3)*(LAMBDA0/LAMBDA1)
+			Q0_A:{deriv=-KA_A*Q0_A, init=0}
+			Q1_A:{deriv=KA_A*Q0_A-KE_A*Q1_A, init=0}
+			Q0_B:{deriv=-KA_B*Q0_B, init=0}
+			Q1_B:{deriv=KA_B*Q0_B-(K12+KE_B)*Q1_B+K21*Q2_B, init=0}
+			Q2_B:{deriv=K12*Q1_B-K21*Q2_B, init=0}
+			Z0:{deriv=(LAMBDA0*Z0/((1+(EFF)^PSI)^(INV_PSI)))*(1-EMAX*C1_A/(C1_A+IC50))-K2INH*C1_B*Z0, init=W0}
+			Z1:{deriv=K2INH*C1_B*Z0-K1*Z1, init=0}
+			Z2:{deriv=K1*Z1-K1*Z2, init=0}
+			Z3:{deriv=K1*Z2-K1*Z3, init=0}
+	    }
+	}# end MODEL_PREDICTION
+	
+	RANDOM_VARIABLE_DEFINITION(level=DV) { 
+		eps_RES_W ~ Normal(mean=0, var=1)
+	}
+   
+	OBSERVATION{    
+   		Y : {type is proportionalError, proportional=CV, eps=eps_RES_W, prediction=WTOT}
+   	}# end OBSERVATION
+}# end of model object
+
+rocchetti2013_task = taskObj{ 
+    OPTIMISE {
+    	set optAlgo is fw
+    	TARGET_SETTINGS(target="POPED"){
+    		set 
+    			criterion="explicit",
+    			file = "tumorcriteria.txt",
+    			computeFIM = "FO",
+    			approximationFIM = "full",
+	        	E_family_value = true,
+	        	E_family_calc_type = "MC",
+	        	E_family_sampling = "LHC",
+	        	E_family_edsampling=0
+    		 
+    	}
+    }
+}
+
+rocchetti2013 = mogObj{
+OBJECTS{
+	rocchetti2013_dsgn : {type is designObj}
+	rocchetti2013_par : {type is parObj}
+	rocchetti2013_mdl : {type is mdlObj}
+	rocchetti2013_task : {type is taskObj}
+	}
+}

@@ -1,0 +1,10 @@
+-------------------------------------------------------------------------------
+Test set: eu.ddmore.converter.mdl2pharmml08.CovariateModelWriterTest
+-------------------------------------------------------------------------------
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.618 sec - in eu.ddmore.converter.mdl2pharmml08.CovariateModelWriterTest
+testWriteCovariateWithDiscreteDistn(eu.ddmore.converter.mdl2pharmml08.CovariateModelWriterTest)  Time elapsed: 0.553 sec
+testWriteContinuousTransformedCovariate(eu.ddmore.converter.mdl2pharmml08.CovariateModelWriterTest)  Time elapsed: 0.161 sec
+testWriteCategoricalCovariate(eu.ddmore.converter.mdl2pharmml08.CovariateModelWriterTest)  Time elapsed: 0.108 sec
+testWriteCategoricalCovariateWithDistn(eu.ddmore.converter.mdl2pharmml08.CovariateModelWriterTest)  Time elapsed: 0.085 sec
+testWriteContinuousCovariate(eu.ddmore.converter.mdl2pharmml08.CovariateModelWriterTest)  Time elapsed: 0.06 sec
+testWriteContinuousCovariateNormal(eu.ddmore.converter.mdl2pharmml08.CovariateModelWriterTest)  Time elapsed: 0.087 sec

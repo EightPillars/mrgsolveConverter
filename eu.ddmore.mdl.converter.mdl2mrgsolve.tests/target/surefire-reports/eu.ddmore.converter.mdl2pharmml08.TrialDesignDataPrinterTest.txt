@@ -1,0 +1,8 @@
+-------------------------------------------------------------------------------
+Test set: eu.ddmore.converter.mdl2pharmml08.TrialDesignDataPrinterTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.067 sec - in eu.ddmore.converter.mdl2pharmml08.TrialDesignDataPrinterTest
+testWriteDesignParametersToAbsoluteExists(eu.ddmore.converter.mdl2pharmml08.TrialDesignDataPrinterTest)  Time elapsed: 0.019 sec
+testWriteDesignParametersRelativeExistsMdlInSame(eu.ddmore.converter.mdl2pharmml08.TrialDesignDataPrinterTest)  Time elapsed: 0.015 sec
+testWriteDesignParametersRelativeNotExist(eu.ddmore.converter.mdl2pharmml08.TrialDesignDataPrinterTest)  Time elapsed: 0.015 sec
+testWriteDesignParametersRelativeExists(eu.ddmore.converter.mdl2pharmml08.TrialDesignDataPrinterTest)  Time elapsed: 0.013 sec

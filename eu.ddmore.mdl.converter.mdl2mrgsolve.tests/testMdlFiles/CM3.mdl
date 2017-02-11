@@ -1,0 +1,101 @@
+# Bayesian use case 3 : Chiudinelli-Melillo
+# Single-subject with ODEs, all parameters correlated
+#
+
+cm_dat = dataObj {
+	DECLARED_VARIABLES{Q1::dosingTarget Y::observation}
+
+	DATA_INPUT_VARIABLES {
+		ID : { use is id }
+		TIME : { use is idv }
+		AMT : { use is amt, variable = Q1 }
+		DV : { use is dv, variable = Y}
+		MDV : { use is mdv }
+	}
+	
+	SOURCE {
+	    srcfile : {file = "data_cm1.csv",
+            inputFormat is nonmemFormat }
+	}
+}
+
+cm_prior = priorObj {
+
+	PRIOR_PARAMETERS{
+		MU_TAU=1
+		VAR_TAU=1
+	}
+	
+	NON_CANONICAL_DISTRIBUTION{
+		PRIOR_SOURCE{
+			data1 : { file="prior_cm3.csv", inputFormat is csv,
+						column=["data_K", "data_V"]}
+		}
+
+		INPUT_PRIOR_DATA{
+			:: { matrixVar = data_k_v, src=data1, column=["data_K", "data_V"] }
+		}
+	}
+	
+	PRIOR_VARIABLE_DEFINITION{
+		data_k_v::matrix
+		POP_K_V ~ MultiEmpirical(data=data_k_v)
+		POP_K = POP_K_V[1]
+		POP_V = POP_K_V[2]
+		
+		TAU ~ LogNormal2(meanLog=MU_TAU, varLog = VAR_TAU)
+		RES=1/sqrt(TAU)
+	}
+}
+
+cm_mdl = mdlObj {
+	IDV{ T }
+
+	VARIABILITY_LEVELS{
+		DV : { level=1, type is observation }
+	} 
+
+	STRUCTURAL_PARAMETERS { 
+		POP_K
+		POP_V
+	}
+	
+	VARIABILITY_PARAMETERS {
+		RES
+	} 
+	
+	INDIVIDUAL_VARIABLES { 
+		Kpar=POP_K
+		Vpar=POP_V
+	}
+
+	MODEL_PREDICTION {
+		DEQ{
+			Q1 : { deriv =(-Kpar * T), init = 0, x0 = 0 }
+			CONC = Q1 / Vpar
+		}
+	}
+	
+	RANDOM_VARIABLE_DEFINITION(level=DV){
+	    EPS_Y ~ Normal(mean = 0, var = 1) 
+	}
+
+	OBSERVATION {
+	    Y : {type is additiveError, additive = RES, eps = EPS_Y, prediction = CONC} 
+	}
+}
+
+cm_task = taskObj {
+	ESTIMATE{ 
+		set algo is mcmc
+	}
+}
+
+cm_mog = mogObj {
+	OBJECTS{
+		cm_dat : { type is dataObj }
+		cm_mdl : { type is mdlObj }
+		cm_prior : { type is priorObj }
+		cm_task : { type is taskObj }
+	}
+}

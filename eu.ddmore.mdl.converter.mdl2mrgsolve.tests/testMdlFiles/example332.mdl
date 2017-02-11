@@ -1,0 +1,147 @@
+# Prior_Example332 : Parameters V, K, POP_K, POP_V are correlated
+# Dosing regimen: single IV bolus administration (at time 0)
+# Structural model : 1 compartment model (V, K)
+# 1 cmpt (V) + linear elimination (K)
+# C(t) = Dose / V*exp(-K*t)
+# Variability model: 
+#   [K, V] ~ MultivariateNormal(mean=[POP_K, POP_V], OMEGA_K_V)
+##   NB: No equivalent of logNormal for multivariate distributions
+#   - Additive residual error model
+#########
+## PRIOR SPECIFICATION:
+## Population mean parameters:
+## ln(POP_K_V) ~ MultivariateNormal([ln(MU_POP_K),ln(MU_POP_V), SIGMA_POP_P)
+##
+## Population between subject variabilities:
+## (1/OMEGA_P) ~ Wishart(R, rho)
+##
+## Residual error
+## TAU ~ Gamma1(a_POP_T, b_POP_T)
+
+example331_dat = dataObj {
+   DECLARED_VARIABLES{ DOSE::dosingTarget Y::observation}
+   DATA_INPUT_VARIABLES{
+      ID:{use is id}
+      TIME:{use is idv}
+      AMT:{use is amt, variable=DOSE}
+      DV:{use is dv, variable=Y}
+   }# end DATA_INPUT_VARIABLES
+
+   SOURCE{
+   mysrcfile:{file="bo1.csv",
+      inputFormat is nonmemFormat}
+   }# end SOURCE
+     
+}
+
+example332_pri = priorObj{
+
+  PRIOR_PARAMETERS{
+		# prior on "THETA"
+		MU_POP_K = 0.1
+		MU_POP_V = 8
+ 
+        SIGMA_POP_P = [[1,0.1;
+        				0.1,1]]
+ 		
+		# prior on "OMEGA" for K, V
+        R = [[1,0.1;
+        	  0.1,1]]
+        rho = 2  
+        
+        # prior on OMEGA for T
+		a_OMEGA_T = 0.3
+		b_OMEGA_T = 0.3
+        
+        # prior on "SIGMA"
+        a_POP_T = 0.1
+		b_POP_T = 0.1
+   } # end PRIOR_PARAMETERS
+
+   PRIOR_VARIABLE_DEFINITION{
+
+		# prior on "THETA"
+      lMU_POP_K = ln(MU_POP_K)
+      lMU_POP_V = ln(MU_POP_V)		
+	    
+	    lMU_POP_P = [lMU_POP_K, lMU_POP_V] 
+	 	lPOP_P ~ MultivariateNormal1(mean=lMU_POP_P, covarianceMatrix=SIGMA_POP_P)
+	 	
+	    POP_K = exp(lPOP_P[1])
+	    POP_V = exp(lPOP_P[2]) 
+	    
+	    # prior on "OMEGA" 	
+		invOMEGA_P ~ Wishart1(scaleMatrix=R, degreesOfFreedom=rho) 
+		OMEGA_P = inverse(invOMEGA_P)
+
+      TAU_T ~ Gamma2(shape=a_OMEGA_T, rate=b_OMEGA_T)
+      OMEGA_T=1/TAU_T 
+
+
+      # prior on "SIGMA"  
+      POP_T ~ Gamma2(shape=a_POP_T, rate=b_POP_T)             
+    } # end PRIOR_VARIABLE_DEFINITION
+} # end of parameter object
+
+example332_mdl = mdlObj{
+	IDV{ T }
+	
+	VARIABILITY_LEVELS{
+		ID:{level=2, type is parameter}
+		DV:{level=1, type is observation}
+	}
+
+   STRUCTURAL_PARAMETERS{
+      POP_K
+      POP_V
+      POP_T
+   }# end STRUCTURAL_PARAMETERS
+
+   VARIABILITY_PARAMETERS{
+      OMEGA_P :: matrix
+	  OMEGA_T      
+   }# end VARIABILITY_PARAMETERS
+
+
+   RANDOM_VARIABLE_DEFINITION(level=ID){
+      DIST_K_V ~ MultivariateNormal1(mean=[ln(POP_K),ln(POP_V)], covarianceMatrix=OMEGA_P)
+      eta_T ~ Normal( mean=0, var=OMEGA_T) 
+   }# end RANDOM_VARIABLE_DEFINITION
+
+   INDIVIDUAL_VARIABLES{
+	  K = exp(DIST_K_V[1]) 
+	  V = exp(DIST_K_V[2]) 
+      TAU : {type is linear, trans is ln, pop = POP_V, ranEff=eta_T}
+      SD_ADD = 1/sqrt(TAU)
+   }# end INDIVIDUAL_VARIABLES
+
+   MODEL_PREDICTION{
+   	  DOSE :: dosingVar 
+      C=DOSE/V*exp(-K*T)
+   }# end MODEL_PREDICTION   
+   
+    RANDOM_VARIABLE_DEFINITION(level=DV){
+   		eps ~ Normal( mean=0, var=1)
+   	}
+   	
+    OBSERVATION{
+      Y : {type is additiveError, additive=SD_ADD, eps=eps, prediction= C}
+   }# end OBSERVATION  
+	
+   } # end of model object
+
+example331_task = taskObj{   
+    ESTIMATE { 
+    	set algo is mcmc  
+	} 
+} # end task
+	
+example332 = mogObj{
+	OBJECTS{
+		example331_dat : { type is dataObj }
+		example332_mdl : { type is mdlObj }
+		example332_pri : { type is priorObj }
+		example331_task : { type is taskObj }
+	}
+}
+

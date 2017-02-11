@@ -1,0 +1,105 @@
+Complex_PK_Model_dat = dataObj {
+	DECLARED_VARIABLES{DEPOT1::dosingVar DEPOT2::dosingVar Y::observation}
+
+	DATA_INPUT_VARIABLES {
+		ID : { use is id }
+		TIME : { use is idv }
+		WT : { use is covariate }
+		AMT : { use is amt, 
+			    define = {1 in CMT as DEPOT1, 2 in CMT as DEPOT2}}
+		CMT : { use is cmt }
+		DVID : { use is dvid}
+		DV : { use is dv, variable = Y }
+		MDV : { use is mdv }
+		logtWT:{ use is covariate }  
+	} # end DATA_INPUT_VARIABLES
+	
+	SOURCE {
+		srcfile : { file = "warfarin_conc_cmt.csv", 
+            inputFormat is nonmemFormat }
+	} # end SOURCE
+} # end data object
+
+Complex_PK_Model_par = parObj{
+	# By default a parameter is to be estimated if fix is omitted
+ 	STRUCTURAL {
+		F1 : { value = 0.5, fix=true }
+		F2 : { value = 0.8, fix=true } 
+		ka : { value = 0.5, fix=true }
+		Tk0 : { value=4, fix=true }
+		kl : { value = 0.5, fix = true }
+		k23 : { value = 0.3, fix = true } 
+        k32: {value=0.5, fix=true }
+        V: {value=10, fix=true }
+        k: {value=0.2, fix=true }
+        Vm: {value=1, fix=true }
+        Km: {value=2, fix=true }
+		} # end STRUCTURAL
+} # end of parameter object 
+
+Complex_PK_Model_mdl = mdlObj{
+	IDV{ T }
+   
+	COVARIATES{
+		logtWT
+	}
+
+	VARIABILITY_LEVELS{
+		DV : { level=1, type is observation }
+	} 
+
+   STRUCTURAL_PARAMETERS{F1 F2 ka Tk0 kl k23 k32 V k Vm Km}
+
+   MODEL_PREDICTION{
+#Monolix PK macros
+#compartment(cmt=1, amount=Al)
+#compartment(cmt=2, amount=Ac)
+#peripheral(k23,k32)
+#oral(type=1, cmt=1, ka, p=F1)
+#oral(type=2, cmt=2, Tk0, p=F2)
+#iv(type=3, cmt=2)
+#transfer(from=1, to=2, kt=kl)
+#elimination(cmt=1, k)
+#elimination(cmt=2, Km, Vm)
+#Cc = Ac/V
+
+   COMPARTMENT{
+      DEPOT1 : {type is depot,  modelCmt=1, to = LATENT, ka = ka, finput = F1}
+      LATENT : {type is compartment, modelCmt=3}
+            :: {type is elimination, modelCmt=3, from = LATENT, k = k}            
+            :: {type is transfer, modelCmt=3, from = LATENT, to = CENTRAL, kt = kl}
+            
+      DEPOT2 : {type is depot,  modelCmt=2, to = CENTRAL, modelDur = Tk0, finput = F2}
+    #INPUT_IV : {type is direct, modelCmt=4, to = CENTRAL} 
+     CENTRAL : {type is compartment, modelCmt=4}
+            :: {type is elimination, modelCmt=4, from = CENTRAL, vm = Vm, km = Km}
+   
+   PERIPHERAL: {type is distribution, modelCmt=5,from = CENTRAL, kin = k23, kout = k32}
+   }# end COMPARTMENT
+ 
+ 	F = CENTRAL / V
+ 
+   }# end MODEL_PREDICTION
+
+	OBSERVATION {
+	    Y : { type is userDefined, value = F, weight=0, prediction=F }
+	} # end OBSERVATION
+
+} # end of model object
+
+Complex_PK_Model_task = taskObj {
+	ESTIMATE {
+	    set algo is saem
+	} #end ESTIMATE sub block
+} # end of task object
+
+#Modelling object group
+
+Complex_PK_Model_mog = mogObj {
+	OBJECTS{
+		Complex_PK_Model_dat : { type is dataObj }
+		Complex_PK_Model_mdl : { type is mdlObj }
+		Complex_PK_Model_par : { type is parObj }
+		Complex_PK_Model_task : { type is taskObj }
+	}
+}

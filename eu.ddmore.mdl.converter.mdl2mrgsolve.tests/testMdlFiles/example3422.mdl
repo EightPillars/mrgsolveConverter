@@ -1,0 +1,121 @@
+example331_dat = dataObj {
+   DECLARED_VARIABLES{ DOSE::dosingTarget Y::observation}
+   DATA_INPUT_VARIABLES{
+      ID:{use is id}
+      TIME:{use is idv}
+      AMT:{use is amt, variable=DOSE}
+      DV:{use is dv, variable=Y}
+   }# end DATA_INPUT_VARIABLES
+
+   SOURCE{
+   mysrcfile:{file="bo1.csv",
+      inputFormat is nonmemFormat}
+   }# end SOURCE
+     
+}
+
+example3422_prior_dat = priorObj {
+   PRIOR_PARAMETERS{
+   		data_POP_K_V = matrix(vector=[1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,
+					            11.0,12.0,13.0,14.0,15.0,16.0,17.0,18.0,19.0,20.0],ncol=2, byRow = false)
+   		data_POP_K_V2 = matrix(vector=[1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,
+					            11.0,12.0,13.0,14.0,15.0,16.0,17.0,18.0,19.0,20.0],ncol=2, byRow = true)
+   		
+        # prior on "OMEGA"
+		a_OMEGA_K = 0.1
+		b_OMEGA_K = 0.1
+		a_OMEGA_V = 0.1
+		b_OMEGA_V = 0.1
+        a_OMEGA_T = 0.3
+		b_OMEGA_T = 0.3
+		
+		# prior on "SIGMA"
+        a_POP_T = 0.1
+		b_POP_T = 0.1
+   
+   } # end PRIOR
+#
+   PRIOR_VARIABLE_DEFINITION{
+
+      # prior on "THETA"    
+	  POP_K_V ~ MultiEmpirical(data=data_POP_K_V)
+      POP_K = POP_K_V[1]
+      POP_V = POP_K_V[2]
+
+	  # prior on "OMEGA"	
+      TAU_K ~ Gamma2(shape=a_OMEGA_K, rate=b_OMEGA_K)
+      OMEGA_K=1/TAU_K
+      TAU_V ~ Gamma2(shape=a_OMEGA_V, rate=b_OMEGA_V)
+      OMEGA_V=1/TAU_V 
+      TAU_T ~ Gamma2(shape=a_OMEGA_T, rate=b_OMEGA_T)
+      OMEGA_T = 1/TAU_T             
+
+      # prior on "SIGMA"  
+      POP_T ~ Gamma2(shape=a_POP_T, rate=b_POP_T)                
+    } # end PRIOR_VARIABLE_DEFINITION
+} # end of Prior Object
+
+example331_mdl = mdlObj{
+	IDV{ T }
+	
+	VARIABILITY_LEVELS{
+		ID:{level=2, type is parameter}
+		DV:{level=1, type is observation}
+	}
+
+   STRUCTURAL_PARAMETERS{
+      POP_K
+      POP_V
+      POP_T
+   }# end STRUCTURAL_PARAMETERS
+
+   VARIABILITY_PARAMETERS{
+      OMEGA_K
+      OMEGA_V
+      OMEGA_T
+   }# end VARIABILITY_PARAMETERS
+
+
+   RANDOM_VARIABLE_DEFINITION(level=ID){
+      eta_K ~ Normal( mean=0, var=OMEGA_K)
+      eta_V ~ Normal( mean=0, var=OMEGA_V)
+      eta_T ~ Normal( mean=0, var=OMEGA_T)
+      
+   }# end RANDOM_VARIABLE_DEFINITION
+
+   INDIVIDUAL_VARIABLES{
+      K : {type is linear, trans is ln, pop = POP_K, ranEff=eta_K}
+      V : {type is linear, trans is ln, pop = POP_V, ranEff=eta_V}
+      TAU : {type is linear, trans is ln, pop = POP_T, ranEff=eta_T}
+      SD_ADD = sqrt(1/TAU)
+      }# end INDIVIDUAL_VARIABLES
+
+   MODEL_PREDICTION{   
+      DOSE :: dosingVar
+      C=DOSE/V*exp(-K*T)
+   }# end MODEL_PREDICTION   
+   
+   RANDOM_VARIABLE_DEFINITION(level=DV){
+   		eps ~ Normal( mean=0, var=1)
+   	}
+   
+   OBSERVATION{
+      Y : {type is additiveError, additive=SD_ADD, eps=eps, prediction= C}
+   }# end OBSERVATION  
+
+} # end of model object
+
+example331_task = taskObj{   
+    ESTIMATE { 
+    	set algo is mcmc  
+	} 
+} # end task
+	
+example331 = mogObj{
+	OBJECTS{
+		example331_dat : { type is dataObj }
+		example331_mdl : { type is mdlObj }
+		example3422_prior_dat : { type is priorObj }
+		example331_task : { type is taskObj }
+	}
+}

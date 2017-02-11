@@ -1,0 +1,162 @@
+# SIMEONI 2004
+# TGI model in vivo
+# This model is used after the estimation step, to evaluate designs
+#
+# Limitations:
+# - among the drugs considered in the paper, only PACLITAXEL has been used for PK
+# - EVID encoded as a covariate in the data object
+#
+# Compatibility:
+# PFIM
+#
+# Dataset:
+# legacy from estimation step
+#
+# Evaluation method for this model:
+# - two designs will be compared, with longer or shorter observation periods
+# - the designs include 2 arms (control+treated)
+#
+# By Elisa Borella, Letizia Carrara, Silvia Lavezzi, Paolo Magni, Giulia Muzio, Lorenzo Pasotti, Elena Tosca (original NONMEM estimation)
+# BMS lab - Univ Pavia
+# Copyright 2015
+# Giulia Lestini, Emmanuelle Comets, Stuart Moodle, Mike Smith, Maciej Swat (PFIM)
+#
+
+simeoni2004_design = designObj{
+	DECLARED_VARIABLES{ dose::dosingTarget Y::observation }
+	
+	INTERVENTION{
+		treated : {type is bolus, input=dose, amount=60*10^6, doseTime=[8,12,16]}
+		control : {type is bolus, input=dose, amount=0, doseTime=[8,12,16]}
+	}
+	
+	STUDY_DESIGN{
+		treatedArm : {armSize = 1, interventionSequence = {admin=treated, start=0},
+							 samplingSequence = {sample=sampleTreated,start=0}}	
+		controlArm : {armSize = 1, interventionSequence = {admin=control, start=0}, samplingSequence={sample=sampleControl,start=0}}
+	}
+	SAMPLING{
+		sampleControl : {type is simple, sampleTime=[8,12,44,48], outcome = Y}
+		sampleTreated : {type is simple, sampleTime=[8,28,63,68], outcome = Y}
+	}
+}
+
+simeoni2004_par = parObj{
+
+   STRUCTURAL{
+      LAMBDA0_POP : {value=0.238, lo=0 } # units="1/day"
+      LAMBDA1_POP : {value=0.14, lo=0} #  units="g/day"
+      K1_POP : {value=0.049, lo=0 } # units="1/day"
+      K2_POP : {value=0.117, lo=0} # units="L/mg/day"
+      W0_POP : {value=6.39e-4, lo=0 } # units="g" 
+      RUV_ADD : {value=0.138, lo=0 } # units="g" 
+      CV : {value=0.063, lo=0}
+   	}
+   
+   VARIABILITY{
+	SIGMA_RES_W : {value=1 ,type is var, fix=true}
+	}
+}
+simeoni2004_mdl = mdlObj{
+
+ 	IDV { t }
+ 	
+ 	VARIABILITY_LEVELS{
+   	DV : { level=1, type is observation }
+   }
+
+	COVARIATES{
+		treatment withCategories { treat, notTreated }
+	}
+	
+	STRUCTURAL_PARAMETERS{
+      LAMBDA0_POP
+      LAMBDA1_POP
+      K1_POP
+      K2_POP
+      W0_POP
+      RUV_ADD
+      CV
+	}
+	
+	VARIABILITY_PARAMETERS{
+      SIGMA_RES_W
+	}
+		
+	
+	INDIVIDUAL_VARIABLES{
+      	LAMBDA0 = LAMBDA0_POP
+      	LAMBDA1 = LAMBDA1_POP
+      	K1 = K1_POP
+      	K2 = K2_POP
+      	W0 = W0_POP
+   	}
+   
+	
+	MODEL_PREDICTION{  	
+		DEQ{
+		V=501		
+  		k=1.18*24
+  		k12=0.099*24
+  		k21=0.228*24
+  		beta = 1/2*(k12+k21+k-sqrt((k12+k21+k)^2-4*k21*k))
+  		alpha = k21*k/beta
+  		A = 1/V*(alpha-k21)/(alpha-beta)
+  		B = 1/V*(beta-k21)/(beta-alpha)
+  		dose::dosingVar
+      	tau=4
+      	C = piecewise{{0 when t<8; 
+      	dose*(A*exp(-alpha*(t-8))+B*exp(-beta*(t-8))) when (t>=8 && t<8+tau);
+      	dose*(A*exp(-alpha*(t-8))+B*exp(-beta*(t-8)))+dose*(A*exp(-alpha*(t-8-tau))+B*exp(-beta*(t-8-tau))) when (t>=8+tau && t<8+2*tau);
+      	otherwise
+      	dose*(A*exp(-alpha*(t-8))+B*exp(-beta*(t-8)))+dose*(A*exp(-alpha*(t-8-tau))+B*exp(-beta*(t-8-tau)))+dose*(A*exp(-alpha*(t-8-2*tau))+B*exp(-beta*(t-8-2*tau)))
+      	}}
+
+# in R, vectorised form:
+# C<-O*t
+# C1<-
+# C2<-...
+# C[t>=8 & t<8+tau]<-C1[t>=8 & t<8+tau]      	
+# C[t>=(8+tau) & t<(8+2*tau)]<-C2[t>=(8+tau) & t<(8+2*tau)]      	
+
+# Original MDL (replaced by closed-form computation of C, to make it PFIM compatible) 
+#		    C=Q1/V1
+#			WTOT=X1+X2+X3+X4
+#			Q1:{deriv=K21*Q2-(K10+K12)*Q1, init=0}
+#			Q2:{deriv=K12*Q1-K21*Q2, init=0}
+      	PSI=20
+      	WTOT=X1+X2+X3+X4+X5
+      	treated = piecewise{{ 1 when treatment == treatment.treat; otherwise 0 }}
+		X1:{deriv=(LAMBDA0*X1/((1+(WTOT*LAMBDA0/LAMBDA1)^PSI)^(1/PSI)))-K2*C*X1, init=W0*treated}
+		X2:{deriv=K2*C*X1-K1*X2, init=0}
+		X3:{deriv=K1*X2-K1*X3, init=0}
+		X4:{deriv=K1*X3-K1*X4, init=0}	
+		X5:{deriv=(LAMBDA0*X5/((1+(WTOT*LAMBDA0/LAMBDA1)^PSI)^(1/PSI))), init=W0*(1-treated)}
+    	}	
+	}	
+   
+   
+   	RANDOM_VARIABLE_DEFINITION (level=DV) {
+	    eps_RES_W ~ Normal(mean=0, var=SIGMA_RES_W)
+	}
+	
+	
+   OBSERVATION {		 
+ 	 Y : { type is combinedError1, additive=RUV_ADD, proportional=CV,  eps=eps_RES_W, prediction= WTOT }	
+    }
+ 
+}
+    
+simeoni2004_Evaltask = taskObj{ 
+  EVALUATE { 
+	}
+}
+	
+simeoni2004 =mogObj{
+	OBJECTS{
+	simeoni2004_design : {type is designObj}
+	simeoni2004_par : {type is parObj}
+	simeoni2004_mdl : {type is mdlObj}
+	simeoni2004_Evaltask : {type is taskObj}
+	}
+}

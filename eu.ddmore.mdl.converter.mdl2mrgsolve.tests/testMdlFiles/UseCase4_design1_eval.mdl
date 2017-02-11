@@ -1,0 +1,195 @@
+warfarin_PK_IVPO_design = designObj{
+  DECLARED_VARIABLES{
+  	GUT :: dosingTarget
+  	CENTRAL :: dosingTarget
+  	Y ::observation
+  	DT
+  }
+
+  DESIGN_PARAMETERS{
+  	gut_bolus=150
+  }
+
+  INTERVENTION{
+ 	admin1 : {type is infusion, input=CENTRAL, amount=100, doseTime=[0], duration=100 }
+ 	admin2 : {type is bolus, input=GUT, amount=gut_bolus, doseTime=[0], lastDoseTimeVar=DT }
+  }
+  SAMPLING{
+	window1 : {type is simple, sampleTime = [0.0001, 24, 36, 48, 72, 96, 120], outcome=Y }
+  }
+  
+  STUDY_DESIGN{
+	arm1 : {
+		armSize=32,
+		interventionSequence=[{
+			admin=[admin1,admin2],
+			start=[0,168]
+		}],
+		samplingSequence=[{
+			sample=[window1,window1],
+			start=[0,168]
+		}]
+	}
+  }
+}
+
+
+warfarin_PK_IVPO_par = parObj {
+	# By default a parameter is to be estimated if fix is omitted
+ 	STRUCTURAL {
+		POP_CL : { value = 0.1, lo = 0.001 }
+		POP_V : { value = 8, lo = 0.001 } 
+		POP_KA : { value = 0.362, lo = 0.001 }
+		POP_TLAG : { value=1, lo=0.001 }
+		BETA_CL_WT : { value = 0.75, fix = true }
+		BETA_V_WT : { value = 1, fix = true } 
+		POP_FORAL : { value=0.7, lo=0.001 }
+		} # end STRUCTURAL
+	VARIABILITY {
+		PPV_CL : { value = 0.1 }
+		PPV_V : { value = 0.1 }
+		PPV_KA : { value = 0.1 }
+		PPV_TLAG : { value = 0.1, fix=true }
+		PPV_FORAL : { value = 0.1 }
+		CORR_CL_V : { value = 0.01 }
+		RUV_PROP : { value = 0.1, lo = 0 }
+		RUV_ADD : { value = 0.1, lo = 0.0001 } 	
+		} # end VARIABILITY
+} # end of parameter object 
+
+warfarin_PK_IVPO_mdl = mdlObj {
+	IDV{ T }
+
+	COVARIATES{
+		logtWT
+	}
+
+	VARIABILITY_LEVELS(reference=ID){
+		ID : { level=2, type is parameter }
+		DV : { level=1, type is observation }
+	} 
+
+	STRUCTURAL_PARAMETERS { 
+		POP_CL
+		POP_V
+		POP_KA
+		POP_TLAG
+		POP_FORAL
+		BETA_CL_WT
+		BETA_V_WT
+	} # end STRUCTURAL_PARAMETERS
+	
+	VARIABILITY_PARAMETERS {
+		PPV_CL
+		PPV_V
+		CORR_CL_V
+		PPV_KA
+		PPV_TLAG
+		PPV_FORAL
+		RUV_PROP
+		RUV_ADD
+	} # end VARIABILITY_PARAMETERS 
+	
+	RANDOM_VARIABLE_DEFINITION(level=ID) {
+		ETA_CL ~ Normal(mean = 0, sd = PPV_CL)
+		ETA_V ~ Normal(mean = 0, sd = PPV_V)
+		:: {type is correlation, rv1=ETA_CL, rv2=ETA_V, value=CORR_CL_V}
+		ETA_KA ~ Normal(mean = 0, sd = PPV_KA)
+		ETA_TLAG ~ Normal(mean = 0, sd = PPV_TLAG) # We define correlation here
+		ETA_FORAL ~ Normal(mean = 0, sd = PPV_FORAL)
+	} # end RANDOM_VARIABLE_DEFINITION 
+
+	
+	INDIVIDUAL_VARIABLES { # This maps to the "Type 3" individual parameter definition in PharmML
+	    CL : {type is linear, trans is ln, pop = POP_CL, fixEff = {coeff=BETA_CL_WT, cov=logtWT} , ranEff = ETA_CL }
+	    V : {type is linear, trans is ln, pop = POP_V, fixEff = {coeff=BETA_V_WT, cov=logtWT} , ranEff = ETA_V }
+	    KA : {type is linear, trans is ln, pop = POP_KA, ranEff = ETA_KA }
+	    TLAG : {type is linear, trans is ln, pop = POP_TLAG, ranEff = ETA_TLAG }
+	    FORAL : {type is linear, trans is logit, pop = POP_FORAL, ranEff = ETA_FORAL }
+	} # end INDIVIDUAL_VARIABLES
+
+	MODEL_PREDICTION {
+		DT
+		## Here there is discontinuity in RATEIN which is not well handled with differential equations.
+		## Ideally we would handle this by defining input mechanisms via COMPARTMENTS.
+		## See UseCase4_1.mdl, UseCase4_2.mdl and UseCase4_3.mdl 
+		## Note also the model below does not handle multiple doses since then DT = 0
+		##   and the RATEIN is reset =0.
+		DEQ{
+			RATEIN = if(T-DT >= TLAG) then GUT * KA
+					 else 0
+			GUT : { deriv =(- RATEIN), init = 0, x0 = 0 }
+			CENTRAL : { deriv =(RATEIN * FORAL - CL * CENTRAL / V), init = 0, x0 = 0 } 
+		}
+	    CC = CENTRAL / V 
+	} # end MODEL_PREDICTION
+	
+	RANDOM_VARIABLE_DEFINITION(level=DV){
+	    EPS_Y ~ Normal(mean = 0, var = 1) # This maps the standard error model in PharmML. The error model is predefined.
+	}
+
+	OBSERVATION {
+	    Y : {type is combinedError1, additive = RUV_ADD, proportional = RUV_PROP, eps = EPS_Y, prediction = CC } 
+	} # end OBSERVATION
+} # end of model object
+
+# EVALUATE task - implicit version
+warfarin_PK_IVPO_taskEval = taskObj {
+	EVALUATE{ 
+	}
+} # end of task object
+
+# EVALUATE task - explicit version
+warfarin_PK_ODE_taskOpt_Explicit = taskObj{ # Here we define explicitly all options for optimisation with PFIM & FW algorithm
+        OPTIMISE {
+			set optAlgo is simplex,
+			fim = "P",
+			previousFim = "",
+			
+# Suggested names of common options (options that would make sense to different software) - Options for methods (what we want the software to compute, 
+# and the settings/options for these computations)
+        graphOnly = false,
+        typeIError = 0.05,
+        powerComparison = false,
+        nSubjectsComparison = false,
+        equivalenceRange = [ln(0.8),ln(1.25)],
+        powerEquivalence = false,
+        nSubjectsEquivalence = false,
+        typeIIError = 0.9,
+        
+# Graphical options (can be moved to SETTINGS if they only make sense to PFIM)     - Options for graphs   
+        graphLogical = true,
+        logLogical = false, 
+ 		namesDataX = ["Time"],
+ 		namesDataY = ["Concentration"],
+		graphInfA=[0],
+		graphSupA=[360] /#,
+        y.rangeA = NULL #/
+        
+#			FEATURES{
+#				sampleTime,
+#				numberTimes=4
+#			}
+        
+		# Define tool specific settings in block
+		TARGET_SETTINGS(target = "PFIM"){ # here we explicit all elements of the task
+			set project = "warfarin_PK_ODE_optimise",
+			output = "Stdout_warfarin_PK_ODE_optimise.R",
+			outputFIM = "",			
+			option = 1,
+			subjectsInput = 1,
+			covariateModel = false,
+			covariate_occModel = false
+			}
+		}
+}
+
+# EVALUATE MOG
+warfarin_PK_IVPO_mog = mogObj {
+	OBJECTS{
+		warfarin_PK_IVPO_design : { type is designObj }
+		warfarin_PK_IVPO_mdl : { type is mdlObj }
+		warfarin_PK_IVPO_par : { type is parObj }
+		warfarin_PK_IVPO_taskEval : { type is taskObj }
+	}
+}

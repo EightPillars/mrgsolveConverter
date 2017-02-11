@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<artifacts size='2'>
+  <artifact classifier='osgi.bundle' id='eu.ddmore.mdl.converter.mdl2pharmml' version='1.6.1.v20170211-1727'>
+    <properties size='5'>
+      <property name='artifact.size' value='603344'/>
+      <property name='download.size' value='603344'/>
+      <property name='maven-groupId' value='eu.ddmore'/>
+      <property name='maven-artifactId' value='eu.ddmore.mdl.converter.mdl2pharmml'/>
+      <property name='maven-version' value='1.6.1-SNAPSHOT'/>
+    </properties>
+  </artifact>
+  <artifact classifier='osgi.bundle' id='eu.ddmore.mdl.converter.mdl2pharmml.source' version='1.6.1.v20170211-1727'>
+    <properties size='6'>
+      <property name='artifact.size' value='374551'/>
+      <property name='download.size' value='374551'/>
+      <property name='maven-groupId' value='eu.ddmore'/>
+      <property name='maven-artifactId' value='eu.ddmore.mdl.converter.mdl2pharmml'/>
+      <property name='maven-version' value='1.6.1-SNAPSHOT'/>
+      <property name='maven-classifier' value='sources'/>
+    </properties>
+  </artifact>
+</artifacts>

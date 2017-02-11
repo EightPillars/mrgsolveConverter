@@ -1,0 +1,137 @@
+# UseCase20 : Transit compartment using MTT, KTR
+# Warfarin population pharmacokinetic model
+# Dosing regimen: single oral administration (at time 0)
+# Structural model : 1 compartment model (CL,V and TLAG)
+# 	Uses transit compartment model
+# Covariate model : Weight on V and CL 
+# Variability model: 
+#   - IIV on CL, V, ka and TLAG
+#   - Correlation between CL and V random variables
+#   - Combined residual error model
+
+
+warfarin_PK_dat = dataObj {
+	DECLARED_VARIABLES{INPUT_KA::dosingTarget Y::observation}
+
+	DATA_INPUT_VARIABLES {
+		ID : { use is id }
+		TIME : { use is idv }
+		WT : { use is covariate }
+		AMT : { use is amt, variable = INPUT_KA }
+		DVID : { use is dvid}
+		DV : { use is dv, variable = Y }
+		MDV : { use is mdv }
+		logtWT:{ use is covariate }  
+	} # end DATA_INPUT_VARIABLES
+	
+	SOURCE {
+	    srcfile : {file = "warfarin_conc.csv", 
+            inputFormat is nonmemFormat } 
+	} # end SOURCE
+} # end data object
+
+warfarin_PK_Transit_par = parObj {
+	# By default a parameter is to be estimated if fix is omitted
+ 	STRUCTURAL {
+		POP_CL : { value = 0.1, lo = 0.001 }
+		POP_V : { value = 8, lo = 0.001 } 
+		POP_KA : { value = 0.362, lo = 0.001 }
+		POP_KTR : { value = 0.1, lo = 0.001 }
+		POP_MTT : { value = 0.5, lo = 0.001 }
+		BETA_CL_WT : { value = 0.75, fix = true }
+		BETA_V_WT : { value = 1, fix = true } 
+		} # end STRUCTURAL
+	VARIABILITY {
+		PPV_CL : { value = 0.1 }
+		PPV_V : { value = 0.1 }
+		PPV_KA : { value = 0.1 }
+		PPV_MTT : { value =0.1}
+		PPV_KTR : { value =0.1}
+		CORR_CL_V : { value = 0.01 }
+		RUV_PROP : { value = 0.1, lo=0 }
+		RUV_ADD : { value = 0.1, lo=0 } 
+		} # end VARIABILITY
+} # end of parameter object 
+
+warfarin_PK_Transit_mdl = mdlObj {
+	IDV { T }
+	COVARIATES{
+		logtWT
+	}
+
+	VARIABILITY_LEVELS{
+		ID : { level=2, type is parameter  }
+		DV : { level=1, type is observation }
+	}
+
+	STRUCTURAL_PARAMETERS {
+		POP_CL
+		POP_V
+		POP_KA
+		POP_KTR
+		POP_MTT
+		BETA_CL_WT
+		BETA_V_WT
+	} # end STRUCTURAL_PARAMETERS
+	
+	VARIABILITY_PARAMETERS {
+		PPV_CL
+		PPV_V
+		PPV_KA
+		PPV_KTR
+		PPV_MTT
+		RUV_PROP
+		RUV_ADD
+	} # end VARIABILITY_PARAMETERS 
+	
+	RANDOM_VARIABLE_DEFINITION(level=ID) {
+		ETA_CL ~ Normal(mean = 0, sd = PPV_CL)
+		ETA_V ~ Normal(mean = 0, sd = PPV_V)
+		ETA_KA ~ Normal(mean = 0, sd = PPV_KA)
+		ETA_MTT ~ Normal(mean = 0, sd = PPV_MTT)
+	} # end RANDOM_VARIABLE_DEFINITION 
+
+	
+	INDIVIDUAL_VARIABLES { # This maps to the "Type 3" individual parameter definition in PharmML
+		CL : {type is linear, trans is ln, pop = POP_CL, fixEff = {coeff=BETA_CL_WT, cov=logtWT} , ranEff = ETA_CL}
+		V :  {type is linear, trans is ln, pop = POP_V, fixEff = {coeff=BETA_V_WT, cov=logtWT} , ranEff = ETA_V }
+		KA : {type is linear, trans is ln, pop = POP_KA, ranEff = ETA_KA }
+	    KTR = POP_KTR
+	   	MTT : {type is linear, trans is ln, pop = POP_MTT, ranEff = ETA_MTT }
+	} # end INDIVIDUAL_VARIABLES
+
+	MODEL_PREDICTION{
+	  COMPARTMENT {
+		INPUT_KA:   {type is depot, to=CENTRAL, ka=KA, ktr=KTR, mtt=MTT}
+		CENTRAL:    {type is compartment }
+        	   ::   {type is elimination, from=CENTRAL, v=V, cl=CL}
+   }# end COMPARTMENT
+
+      CONC=CENTRAL/V
+	} # end MODEL_PREDICTION
+
+	RANDOM_VARIABLE_DEFINITION(level=DV) {
+		EPS_Y ~ Normal(mean = 0, var = 1) # This maps the standard error model in PharmML. The error model is predefined.
+	}
+
+	OBSERVATION {
+	    Y : {type is combinedError1, additive = RUV_ADD, proportional = RUV_PROP, eps = EPS_Y, prediction = CONC }
+	} # end OBSERVATION
+} # end of model object
+
+warfarin_PK_ODE_task = taskObj {
+	ESTIMATE{ 
+		set algo is saem
+}
+} # end of task object
+
+
+
+warfarin_PK_ODE_mog = mogObj {
+	OBJECTS{
+		warfarin_PK_dat : { type is dataObj }
+		warfarin_PK_Transit_mdl : { type is mdlObj }
+		warfarin_PK_Transit_par : { type is parObj }
+		warfarin_PK_ODE_task : { type is taskObj }
+	}
+}

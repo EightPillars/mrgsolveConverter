@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Require-Bundle: eu.ddmore.mdl,eu.ddmore.mdl.ui,org.eclipse.core.runtim
+ e,org.eclipse.ui,eu.ddmore.libpharmml-test-data,eu.ddmore.libpharmml-
+ osgi;bundle-version="0.6.1",org.eclipse.xtext.junit4,org.eclipse.ui.w
+ orkbench;resolution:=optional,org.objectweb.asm;bundle-version="[5.0.
+ 1,6.0.0)";resolution:=optional,org.apache.xml.resolver;bundle-version
+ ="1.2.0",org.apache.servicemix.bundles.xerces;bundle-version="2.11.0"
+ ,eu.ddmore.mdllib,org.eclipse.xtext.xbase.lib,org.eclipse.emf.ecore,e
+ u.ddmore.mdl.converter.mdl2pharmml,eu.ddmore.mdl.tests;bundle-version
+ ="1.6.1"
+Bundle-ActivationPolicy: lazy
+Bundle-Version: 1.6.1.v20170211-1727
+Bundle-Name: MDL 2 PharmML Tests
+Bundle-ManifestVersion: 2
+Import-Package: org.apache.commons.io;version="2.0.1",org.apache.log4j
+ ;version="1.2.15",org.eclipse.xtext.junit4,org.junit;version="4.5.0",
+ org.junit.runner;version="4.5.0",org.junit.runner.manipulation;versio
+ n="4.5.0",org.junit.runner.notification;version="4.5.0",org.junit.run
+ ners;version="4.5.0",org.junit.runners.model;version="4.5.0",org.hamc
+ rest.core
+Bundle-SymbolicName: eu.ddmore.mdl.converter.mdl2pharmml.tests;singlet
+ on:=true
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+

@@ -1,0 +1,193 @@
+# MODEL1 efficacy model, no toxicity yet
+#
+
+MODEL1_dsgn = designObj{
+	DECLARED_VARIABLES {
+		A1_D::dosingTarget
+		A1_E::dosingTarget
+		Y::observation
+	}
+
+	DESIGN_PARAMETERS{
+		totDoseA = 90
+		totDoseB = 90
+		
+		f2_D = 1
+		f3_D = 1
+		f2_E = 1
+		f3_E = 1
+		
+		p1_D = 1/(1+f2_D+f3_D) 
+		p2_D = f2_D/(1+f2_D+f3_D)
+		p3_D = f3_D/(1+f2_D+f3_D)
+		p1_E = 1/(1+f2_E+f3_E) 
+		p2_E = f2_E/(1+f2_E+f3_E)
+		p3_E = f3_E/(1+f2_E+f3_E)
+	}
+
+	INTERVENTION{
+		infA1 : { type is infusion, input = A1_D, amount=totDoseA*p1_D, doseTime=[0.04], duration=0.04 }
+		infA2 : { type is infusion, input = A1_D, amount=totDoseA*p2_D, doseTime=[0.38], duration=0.04 }
+		infA3 : { type is infusion, input = A1_D, amount=totDoseA*p3_D, doseTime=[1.08], duration=0.04 }
+		infB1 : { type is infusion, input = A1_E, amount=totDoseB*p1_E, doseTime=[1.33], duration=0.01 }
+		infB2 : { type is infusion, input = A1_E, amount=totDoseB*p2_E, doseTime=[2.00], duration=0.01 }
+		infB3 : { type is infusion, input = A1_E, amount=totDoseB*p3_E, doseTime=[2.33], duration=0.01 }
+		combA : { type is combi, combination=[infA1, infA2, infA3, infB1, infB2, infB3], start=[0] }
+	}
+	
+	SAMPLING{
+		sampl1 : { type is simple, outcome=Y, sampleTime=[21] }
+	}
+	
+	DESIGN_SPACES{
+		DS1D : { objRef=[f2_D], range=[0,100], element is parameter } 
+		DS2D : { objRef=[f3_D], range=[0,100], element is parameter } 
+		DS1E : { objRef=[f2_E], range=[0,100], element is parameter } 
+		DS2E : { objRef=[f3_E], range=[0,100], element is parameter } 
+  }
+
+	STUDY_DESIGN{
+		armA : { armSize = 1, interventionSequence = { admin=[combA], start=0 }, samplingSequence={ sample=sampl1, start=0 } }
+	}
+
+}
+
+# Provide a set of initial parameters values for a model 
+MODEL1_par = parObj {
+
+	# By default a parameter is to be estimated if fix is omitted
+ 	STRUCTURAL {
+		#PK                                   #unit        #unit ok?
+		V1_D : { value = 7.4, fix = true}     #[L]
+		V1_E : { value = 10.8, fix = true}    #[L]
+		ke_D : { value = 125, fix = true}     #[1/day]
+		k12_D : { value = 25.5, fix = true}   #[1/day]
+		k21_D : { value = 36.2, fix = true}   #[1/day]		
+		k13_D : { value = 30.2, fix = true}   #[1/day]
+		k31_D : { value = 2.0, fix = true}    #[1/day]
+		ke_E : { value = 10.8, fix = true}    #[1/day]
+		k12_E : { value = 43.8, fix = true}   #[1/day]
+		k21_E : { value = 31, fix = true}     #[1/day]
+		k13_E : { value = 206, fix = true}    #[1/day]
+		k31_E : { value = 1.5, fix = true}    #[1/day]
+		#TGI model	
+		CminD : { value = 20, fix = true}     #[ng/mL]
+		CminE : { value = 0.1, fix = true}    #[ng/mL]
+		B_DD : { value = 1.21e-4, fix = true} #[ng^2/mL^2]
+		B_DE : { value = 3.96e-5, fix = true} #[ng^2/mL^2]
+		B_EE : { value = 3.6e-5, fix = true}  #[ng^2/mL^2]
+		xi : { value = 0.9, fix = true}       #unitless 
+		N0 : { value = 30, fix = true}        #[g]          ??? 
+		THTA : { value = 1e12, fix = true}   #[cells]   
+		rho : { value = 4.0e-3, fix = true}   #[1/day]
+		kappa : { value = 0.5, fix = true}    #[1/day]
+		#residual error (tumour)
+		RUV_ADD : { value = 1}    # ...
+		RUV_PROP : { value = 1, fix = true}   # ...
+		} # end STRUCTURAL
+} # end of parameter object 
+
+# Define the model in a model object
+MODEL1_mdl = mdlObj {
+	# Independent variable of model
+	IDV{ T }
+
+	# Levels of random variability define here
+	VARIABILITY_LEVELS{
+		DV : { level=1, type is observation }
+	}
+
+	# Stuctural parameters
+	STRUCTURAL_PARAMETERS { 
+	#PK models
+		V1_D
+		V1_E
+		ke_D
+		k12_D
+		k13_D
+		k21_D
+		k31_D
+		ke_E
+		k12_E
+		k13_E
+		k21_E
+		k31_E
+	#Exposure model (PK-PD interface)		
+		CminD
+		CminE
+	#TGI model
+		B_DD
+		B_DE
+		B_EE
+		xi
+		N0
+		THTA
+		rho
+		kappa
+	#residual error (tumour)
+		RUV_ADD
+		RUV_PROP
+	}
+
+	# Define the model
+	MODEL_PREDICTION {
+		# ODEs can go in the DEQ block
+		DEQ{
+			C1_D = A1_D / V1_D
+			C1_E = A1_E / V1_E
+			A1_D : { deriv = -ke_D*C1_D - k12_D*(C1_D-C2_D) - k13_D*(C1_D-C3_D) , init = 0, x0 = 0 }
+			C2_D : { deriv = k21_D*(C1_D-C2_D), init = 0, x0 = 0 } 
+			C3_D : { deriv = k31_D*(C1_D-C3_D), init = 0, x0 = 0 } 
+			A1_E : { deriv = -ke_E*C1_E - k12_E*(C1_E-C2_E) - k13_E*(C1_E-C3_E) , init = 0, x0 = 0 }
+			C2_E : { deriv = k21_E*(C1_E-C2_E), init = 0, x0 = 0 } 
+			C3_E : { deriv = k31_E*(C1_E-C3_E), init = 0, x0 = 0 }
+
+			qD = if(C3_D>CminD) then C3_D-CminD else 0
+			qE = if(C3_E>CminE) then C3_E-CminE else 0
+
+			f_D_E = 1 - exp(-(qD^2*B_DD + 2*qD*qE*B_DE + qE^2*B_EE)^(xi/2))
+			N : {deriv = rho*N*ln(THTA/N) - kappa*f_D_E*N, init = N0, x0 = 0 }
+		}
+	}
+	
+	# Define epsilons like this
+	RANDOM_VARIABLE_DEFINITION(level=DV){
+	    EPS_Y ~ Normal(mean = 0, var = 1)
+	}
+
+	# Define observations here
+	OBSERVATION {
+		# This is a continuous observation with a combined additive and proportional error model
+        Y : {type is combinedError1, additive = RUV_ADD, proportional = RUV_PROP, eps = EPS_Y, prediction = N} 
+	} # end OBSERVATION
+}
+
+# Define the task
+MODEL1_task = taskObj {
+    OPTIMISE {
+    	set optAlgo is fw
+    	TARGET_SETTINGS(target="POPED"){
+    		set 
+    			criterion="explicit",
+    			file = "tumorcriteria.txt",
+    			computeFIM = "FO",
+    			approximationFIM = "full",
+	        	E_family_value = true,
+	        	E_family_calc_type = "MC",
+	        	E_family_sampling = "LHC",
+	        	E_family_edsampling=0
+    		 
+    	}
+    }
+}
+
+# Define the modelling object group
+MODEL1_mog = mogObj {
+	OBJECTS{
+		# A MOG is composed of a data, model, parameter and task object
+		MODEL1_dsgn : { type is designObj }
+		MODEL1_mdl : { type is mdlObj }
+		MODEL1_par : { type is parObj }
+		MODEL1_task : { type is taskObj }
+	}
+}

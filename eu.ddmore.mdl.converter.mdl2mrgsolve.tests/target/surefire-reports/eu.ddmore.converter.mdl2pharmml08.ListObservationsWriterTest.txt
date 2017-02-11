@@ -1,0 +1,13 @@
+-------------------------------------------------------------------------------
+Test set: eu.ddmore.converter.mdl2pharmml08.ListObservationsWriterTest
+-------------------------------------------------------------------------------
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.188 sec - in eu.ddmore.converter.mdl2pharmml08.ListObservationsWriterTest
+testWriteCombinedError2NoTrans(eu.ddmore.converter.mdl2pharmml08.ListObservationsWriterTest)  Time elapsed: 0.022 sec
+testWriteDiscreteBernoulliObs(eu.ddmore.converter.mdl2pharmml08.ListObservationsWriterTest)  Time elapsed: 0.022 sec
+testWriteCombinedError2LogRhsTrans(eu.ddmore.converter.mdl2pharmml08.ListObservationsWriterTest)  Time elapsed: 0.021 sec
+testWriteCountObs(eu.ddmore.converter.mdl2pharmml08.ListObservationsWriterTest)  Time elapsed: 0.019 sec
+testWriteDiscreteBinomialObs(eu.ddmore.converter.mdl2pharmml08.ListObservationsWriterTest)  Time elapsed: 0.02 sec
+testWriteCombinedError2LogBothTransAttOmitted(eu.ddmore.converter.mdl2pharmml08.ListObservationsWriterTest)  Time elapsed: 0.018 sec
+testWriteContinuousObs(eu.ddmore.converter.mdl2pharmml08.ListObservationsWriterTest)  Time elapsed: 0.018 sec
+testWriteCategopricalNonOrderedObs(eu.ddmore.converter.mdl2pharmml08.ListObservationsWriterTest)  Time elapsed: 0.021 sec
+testWriteCombinedError2LogBothTrans(eu.ddmore.converter.mdl2pharmml08.ListObservationsWriterTest)  Time elapsed: 0.018 sec

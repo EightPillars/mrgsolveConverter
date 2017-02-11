@@ -1,0 +1,209 @@
+# SIMEONI 2004
+# TGI model in vivo
+# This model is used for estimation.
+#
+# Limitations:
+# - among the drugs considered in the paper, only PACLITAXEL has been used for PK
+# - EVID encoded as a covariate in the data object
+#
+# Compatibility:
+# NONMEM
+# (at the time of submission, Monolix is not supported due to the absence of EVID support)
+#
+# Dataset:
+# Simulated dataset
+#
+# Evaluation method for this model:
+# run NONMEM estimation via TEL;
+# compare individual fits with figures in the paper (FIG.7)
+#
+# By Elisa Borella, Letizia Carrara, Silvia Lavezzi, Paolo Magni, Giulia Muzio, Lorenzo Pasotti, Elena Tosca
+# BMS lab - Univ Pavia
+# Copyright 2015
+#
+# THIS IS A BAYESIAN VERSION OF THE MODEL
+# Use data from experiment 289 (Terranova N BS Thesis), Brostallicin
+
+simeoni2004_data = dataObj{
+
+DECLARED_VARIABLES{Y::observation Q1::dosingTarget}
+
+   DATA_INPUT_VARIABLES{
+      ID:{use is id}
+      TIME:{use is idv}
+      DV:{use is dv, variable= Y}
+      AMT:{use is amt, variable=Q1}
+      EVID:{use is evid}
+      CMT:{use is cmt}
+   }
+   
+   SOURCE{
+   	scrfile : {
+       file="Simulated_simeoni2004_bayes.csv",  
+       inputFormat is nonmemFormat
+      }
+   }
+}
+
+simeoni2004_pri = priorObj{
+	
+	PRIOR_PARAMETERS{
+	  
+	  # log scale
+	  MU_LAMBDA0_POP = -1.4
+      MU_LAMBDA1_POP = -1.3
+      MU_K1_POP = -1.2
+      MU_K2_POP = -3.2
+      MU_W0_POP = -3.9
+      
+      # variances
+      SIGMA_LAMBDA0_POP = 0.8
+      SIGMA_LAMBDA1_POP = 1.2
+      SIGMA_K1_POP = 1.8
+      SIGMA_K2_POP = 1.4
+      SIGMA_W0_POP = 3.2
+      
+      a_CV2 = 195 #so that IC95% for CV: 0.08-0.09; mean_gamma=a/b, var_gamma=a/(b^2)
+      b_CV2 = 1.4
+      
+      #so that IC95% for CV: 0.08-0.12
+      #a_CV2 = 16.8807
+      #b_CV2 = 0.1546
+      
+      #so that IC95% for CV: 0.04-0.1
+      #a_CV2 = 3.6296
+      #b_CV2 = 0.0116
+      
+      # so that IC95% for CV: 0.0249-0.1511
+      #a_CV2 = 1.2
+      #b_CV2 = 0.0021
+	  
+	  K10_POP=0.868*24 # 20.832 1/day
+	  K12_POP=0.006*24 # 0.144 #1/day
+      K21_POP=0.0838*24 # 2.011 #1/day
+      V1_POP=  0.81 #L/kg
+      PSI_POP=20
+	}
+	
+	PRIOR_VARIABLE_DEFINITION{
+	  logLAMBDA0_POP ~ Normal(mean=MU_LAMBDA0_POP, var=SIGMA_LAMBDA0_POP)
+	  logLAMBDA1_POP ~ Normal(mean=MU_LAMBDA1_POP, var=SIGMA_LAMBDA1_POP)
+	  logK1_POP ~ Normal(mean=MU_K1_POP, var=SIGMA_K1_POP)
+	  logK2_POP ~ Normal(mean=MU_K2_POP, var=SIGMA_K2_POP)
+	  logW0_POP ~ Normal(mean=MU_W0_POP, var=SIGMA_W0_POP)
+	  
+	  LAMBDA0_POP = exp(logLAMBDA0_POP)
+	  LAMBDA1_POP = exp(logLAMBDA1_POP)
+	  K1_POP = exp(logK1_POP)
+	  K2_POP = exp(logK2_POP)
+	  W0_POP = exp(logW0_POP)
+	  
+	  invCV2 ~ Gamma1(shape=a_CV2, scale=b_CV2)
+	  CV = sqrt(1/invCV2)
+	}
+}
+
+simeoni2004_par = parObj{
+
+   STRUCTURAL{
+      LAMBDA0_POP : {value=0.3, lo=0 } # units="1/day"
+      LAMBDA1_POP : {value=0.3, lo=0} #  units="g/day"
+      K1_POP : {value=0.3, lo=0 } # units="1/day"
+      K2_POP : {value=0.5, lo=0} # units="L/ug/day"
+      W0_POP : {value=0.02, lo=0 } # units="g"
+      CV : {value=0.1, lo=0}
+      
+      # estimates for Experiment 289
+      # LAMBDA0 0.1
+      # LAMBDA1 0.11
+      # K1 0.24
+      # K2 0.025
+      # W0 0.043
+   	}
+   
+   VARIABILITY{
+	SIGMA_RES_W : {value=1 ,type is var, fix=true}
+	}
+}
+
+simeoni2004_mdl = mdlObj{
+
+ 	IDV { T }
+ 	
+ 	VARIABILITY_LEVELS{
+   	DV : { level=1, type is observation }
+   }
+
+	
+	STRUCTURAL_PARAMETERS{
+      LAMBDA0_POP
+      LAMBDA1_POP
+      K1_POP
+      K2_POP
+      W0_POP
+      	K10_POP
+		K12_POP
+      	K21_POP
+      	V1_POP
+      	PSI_POP
+      CV
+	}
+	
+	VARIABILITY_PARAMETERS{
+      SIGMA_RES_W = 1
+	}
+		
+	
+	INDIVIDUAL_VARIABLES{
+      	LAMBDA0 = LAMBDA0_POP
+      	LAMBDA1 = LAMBDA1_POP
+      	K1 = K1_POP
+      	K2 = K2_POP
+      	W0 = W0_POP
+      	K10 = K10_POP
+	  	K12 = K12_POP
+     	K21 = K21_POP
+      	V1 = V1_POP
+     	PSI = PSI_POP
+     }
+   
+	
+	MODEL_PREDICTION{  	
+		DEQ{
+		    C=Q1/V1
+			WTOT=X1+X2+X3+X4
+			Q1:{deriv=K21*Q2-(K10+K12)*Q1, init=0}
+			Q2:{deriv=K12*Q1-K21*Q2, init=0}
+			X1:{deriv=(LAMBDA0*X1/((1+(WTOT*LAMBDA0/LAMBDA1)^PSI)^(1/PSI)))-K2*C*X1, init=W0}
+			X2:{deriv=K2*C*X1-K1*X2, init=0}
+			X3:{deriv=K1*X2-K1*X3, init=0}
+			X4:{deriv=K1*X3-K1*X4, init=0}	
+    	}	
+	}	
+   
+   
+   	RANDOM_VARIABLE_DEFINITION (level=DV) {
+	    eps_RES_W ~ Normal(mean=0, var=SIGMA_RES_W)
+	}
+	
+	
+   OBSERVATION {
+ 	 Y : { type is proportionalError, proportional = CV, eps = eps_RES_W, prediction = WTOT }
+   }
+ 
+}
+   
+simeoni2004_task = taskObj{ 
+  ESTIMATE { 
+        set algo is foce 
+	}
+}
+	
+simeoni2004 =mogObj{
+	OBJECTS{
+	simeoni2004_data : {type is dataObj}
+	simeoni2004_pri : {type is priorObj}
+	simeoni2004_mdl : {type is mdlObj}
+	simeoni2004_task : {type is taskObj}
+	}
+}

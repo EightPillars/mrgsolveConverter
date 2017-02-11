@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<units size='2'>
+  <unit id='eu.ddmore.mdl.converter.mdl2pharmml.tests' version='1.6.1.v20170211-1727'>
+    <update id='eu.ddmore.mdl.converter.mdl2pharmml.tests' range='[0.0.0,1.6.1.v20170211-1727)' severity='0'/>
+    <properties size='4'>
+      <property name='org.eclipse.equinox.p2.name' value='MDL 2 PharmML Tests'/>
+      <property name='maven-groupId' value='eu.ddmore'/>
+      <property name='maven-artifactId' value='eu.ddmore.mdl.converter.mdl2pharmml.tests'/>
+      <property name='maven-version' value='1.6.1-SNAPSHOT'/>
+    </properties>
+    <provides size='3'>
+      <provided namespace='org.eclipse.equinox.p2.iu' name='eu.ddmore.mdl.converter.mdl2pharmml.tests' version='1.6.1.v20170211-1727'/>
+      <provided namespace='osgi.bundle' name='eu.ddmore.mdl.converter.mdl2pharmml.tests' version='1.6.1.v20170211-1727'/>
+      <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+    </provides>
+    <requires size='26'>
+      <required namespace='osgi.bundle' name='eu.ddmore.mdl' range='0.0.0'/>
+      <required namespace='osgi.bundle' name='eu.ddmore.mdl.ui' range='0.0.0'/>
+      <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+      <required namespace='osgi.bundle' name='eu.ddmore.libpharmml-test-data' range='0.0.0'/>
+      <required namespace='osgi.bundle' name='eu.ddmore.libpharmml-osgi' range='0.6.1'/>
+      <required namespace='osgi.bundle' name='org.eclipse.xtext.junit4' range='0.0.0'/>
+      <required namespace='osgi.bundle' name='org.eclipse.ui.workbench' range='0.0.0' optional='true' greedy='false'/>
+      <required namespace='osgi.bundle' name='org.objectweb.asm' range='[5.0.1,6.0.0)' optional='true' greedy='false'/>
+      <required namespace='osgi.bundle' name='org.apache.xml.resolver' range='1.2.0'/>
+      <required namespace='osgi.bundle' name='org.apache.servicemix.bundles.xerces' range='2.11.0'/>
+      <required namespace='osgi.bundle' name='eu.ddmore.mdllib' range='0.0.0'/>
+      <required namespace='osgi.bundle' name='org.eclipse.xtext.xbase.lib' range='0.0.0'/>
+      <required namespace='osgi.bundle' name='org.eclipse.emf.ecore' range='0.0.0'/>
+      <required namespace='osgi.bundle' name='eu.ddmore.mdl.converter.mdl2pharmml' range='0.0.0'/>
+      <required namespace='osgi.bundle' name='eu.ddmore.mdl.tests' range='1.6.1'/>
+      <required namespace='java.package' name='org.apache.commons.io' range='2.0.1'/>
+      <required namespace='java.package' name='org.apache.log4j' range='1.2.15'/>
+      <required namespace='java.package' name='org.eclipse.xtext.junit4' range='0.0.0'/>
+      <required namespace='java.package' name='org.junit' range='4.5.0'/>
+      <required namespace='java.package' name='org.junit.runner' range='4.5.0'/>
+      <required namespace='java.package' name='org.junit.runner.manipulation' range='4.5.0'/>
+      <required namespace='java.package' name='org.junit.runner.notification' range='4.5.0'/>
+      <required namespace='java.package' name='org.junit.runners' range='4.5.0'/>
+      <required namespace='java.package' name='org.junit.runners.model' range='4.5.0'/>
+      <required namespace='java.package' name='org.hamcrest.core' range='0.0.0'/>
+    </requires>
+    <artifacts size='1'>
+      <artifact classifier='osgi.bundle' id='eu.ddmore.mdl.converter.mdl2pharmml.tests' version='1.6.1.v20170211-1727'/>
+    </artifacts>
+    <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+    <touchpointData size='1'>
+      <instructions size='1'>
+        <instruction key='manifest'>
+          Bundle-SymbolicName: eu.ddmore.mdl.converter.mdl2pharmml.tests;singleton:=true&#xA;Bundle-Version: 1.6.1.v20170211-1727&#xA;
+        </instruction>
+      </instructions>
+    </touchpointData>
+  </unit>
+  <unit id='eu.ddmore.mdl.converter.mdl2pharmml.tests.source' version='1.6.1.v20170211-1727' singleton='false'>
+    <update id='eu.ddmore.mdl.converter.mdl2pharmml.tests.source' range='[0.0.0,1.6.1.v20170211-1727)' severity='0'/>
+    <properties size='9'>
+      <property name='df_LT.bundleVendor' value='unknown'/>
+      <property name='df_LT.bundleName' value='MDL 2 PharmML Tests Source'/>
+      <property name='org.eclipse.equinox.p2.name' value='%bundleName'/>
+      <property name='org.eclipse.equinox.p2.provider' value='%bundleVendor'/>
+      <property name='org.eclipse.equinox.p2.bundle.localization' value='OSGI-INF/l10n/bundle-src'/>
+      <property name='maven-groupId' value='eu.ddmore'/>
+      <property name='maven-artifactId' value='eu.ddmore.mdl.converter.mdl2pharmml.tests'/>
+      <property name='maven-version' value='1.6.1-SNAPSHOT'/>
+      <property name='maven-classifier' value='sources'/>
+    </properties>
+    <provides size='4'>
+      <provided namespace='org.eclipse.equinox.p2.iu' name='eu.ddmore.mdl.converter.mdl2pharmml.tests.source' version='1.6.1.v20170211-1727'/>
+      <provided namespace='osgi.bundle' name='eu.ddmore.mdl.converter.mdl2pharmml.tests.source' version='1.6.1.v20170211-1727'/>
+      <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='source' version='1.0.0'/>
+      <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+    </provides>
+    <artifacts size='1'>
+      <artifact classifier='osgi.bundle' id='eu.ddmore.mdl.converter.mdl2pharmml.tests.source' version='1.6.1.v20170211-1727'/>
+    </artifacts>
+    <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+    <touchpointData size='1'>
+      <instructions size='1'>
+        <instruction key='manifest'>
+          Bundle-SymbolicName: eu.ddmore.mdl.converter.mdl2pharmml.tests.source&#xA;Bundle-Version: 1.6.1.v20170211-1727&#xA;
+        </instruction>
+      </instructions>
+    </touchpointData>
+  </unit>
+</units>

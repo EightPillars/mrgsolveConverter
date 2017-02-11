@@ -1,0 +1,64 @@
+############################################################
+# OS generated files
+############################################################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+
+############################################################
+# Logs
+############################################################
+# General
+*.log
+*.runlog
+
+# MDL-IDE full (local) build logs
+*-log.txt
+
+############################################################
+# Java
+############################################################
+*.class
+#xtend generated trace files
+*.java._trace
+
+
+# Java Package Files #
+#*.jar
+#*.war
+#*.ear
+
+# Maven #
+target/
+target-gen/
+
+# ANT #
+build/
+
+# eclipse #
+bin/
+.settings/
+.project
+.classpath
+
+
+#xtext, xtend
+src-gen/
+xtend-gen/
+*.MF_gen
+*.xml_gen
+
+
+############################################################
+# R files
+############################################################
+# History files
+.Rhistory
+
+# Example code in package build process
+*-Ex.R

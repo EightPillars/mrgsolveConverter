@@ -1,0 +1,140 @@
+# UseCase3_1 : PD model with PK parameters passed as input variables to MODEL PREDICTION.
+# Population pharmacokinetic and pharmacodynamic model to describe warfarin and PCA response
+# Dosing regimen: single oral administration
+# Structural model 
+#   - 1 compartment model (CL,V and TLAG)
+#   - Indirect response model + inhibitory EMAX model on synthesis
+# Covariate model : Weight on V and CL 
+# Variability model: 
+#   - IIV on CL, V, ka, TLAG,PCA0, C50 and TEQ
+#   - Correlation between CL and V random variables
+#   - PK: Combined residual error model 
+#   - PD: Additive residual error model
+# Passing PK parameters from the dataset to drive the PK model
+
+warfarin_PKPD_turnover_dat = dataObj{
+     DECLARED_VARIABLES{PCA_obs::observation; INPUT_KA::dosingTarget }
+
+     DATA_INPUT_VARIABLES{
+      ID : 	 { use is id }
+      TIME : { use is idv }
+      WT : 	 { use is covariate }
+      AGE :  { use is covariate }
+      SEX :  { use is catCov withCategories{female when 0, male when 1} }
+      AMT :  { use is amt, variable = INPUT_KA }
+      DVID : { use is dvid }
+      DV :   { use is dv, define={2 in DVID as PCA_obs} }
+      MDV :  { use is mdv }
+      CL : { use is variable }
+      V : { use is variable }
+      KA : { use is variable }
+      TLAG : { use is variable }
+   }# end DATA_INPUT_VARIABLES
+
+   SOURCE{
+      srcfile : {file="warfarin_conc_pca_PKparam.csv", 
+      			 inputFormat is nonmemFormat }
+   }# end SOURCE
+} # end data object
+
+warfarin_PKPD_turnover_par = parObj{
+   STRUCTURAL{
+      POP_PCA0 : {value=96.7,lo=0.01,hi=200}
+      POP_EMAX : {value=1, lo=0, fix=true}
+      POP_C50 : {value=1.2,lo=0.01,hi=10}
+      POP_TEQ : {value=12.9,lo=0.01,hi=100}
+      RUV_FX : {value=4, lo=0 }
+   }# end STRUCTURAL
+
+   VARIABILITY{
+      PPV_PCA0 : {value=0.1 ,type is sd}
+      PPV_EMAX : {value=0 ,type is sd,fix=true}
+      PPV_C50 : {value=0.1 ,type is sd}
+      PPV_TEQ : {value=0.1 ,type is sd}
+   }# end VARIABILITY
+
+} # end of parameter object
+
+warfarin_PKPD_turnover_mdl = mdlObj{
+	IDV { T }
+
+	VARIABILITY_LEVELS{
+		ID : { level=2, type is parameter }
+		DV : { level=1, type is observation }	
+	}
+
+   STRUCTURAL_PARAMETERS{
+      POP_PCA0
+      POP_EMAX
+      POP_C50
+      POP_TEQ
+      RUV_FX
+    }# end STRUCTURAL_PARAMETERS
+
+   VARIABILITY_PARAMETERS{
+      PPV_PCA0
+      PPV_EMAX
+      PPV_C50
+      PPV_TEQ
+   }# end VARIABILITY_PARAMETERS
+
+   RANDOM_VARIABLE_DEFINITION(level=ID){
+      ETA_PCA0 ~ Normal( mean=0, sd=PPV_PCA0)
+      ETA_EMAX ~ Normal( mean=0, sd=PPV_EMAX)
+      ETA_C50 ~ Normal( mean=0, sd=PPV_C50)
+      ETA_TEQ ~ Normal( mean=0, sd=PPV_TEQ)
+   }# end RANDOM_VARIABLE_DEFINITION
+
+   INDIVIDUAL_VARIABLES{
+	  PCA0 : {type is linear, trans is ln, pop = POP_PCA0, ranEff = ETA_PCA0 }
+	  EMAX : {type is linear, pop = POP_EMAX, ranEff = ETA_EMAX }
+	  C50 : {type is linear, trans is ln, pop = POP_C50, ranEff = ETA_C50 }
+	  TEQ : {type is linear, trans is ln, pop = POP_TEQ, ranEff = ETA_TEQ }   
+   }# end INDIVIDUAL_VARIABLES
+
+   MODEL_PREDICTION{
+   	  CL
+   	  V
+   	  KA
+   	  TLAG
+   	  KPCA=ln(2)/TEQ
+      RPCA=PCA0*KPCA
+	COMPARTMENT {
+			INPUT_KA      : {type is depot, modelCmt=1, to=CENTRAL, ka=KA, tlag=TLAG}
+			#INPUT_CENTRAL : {type is direct, to = CENTRAL}
+			CENTRAL       : {type is compartment, modelCmt=2}
+                     	 :: {type is elimination, modelCmt=2, from=CENTRAL, v=V, cl=CL}
+   		}# end COMPARTMENT
+
+   DEQ{
+      CC=CENTRAL/V
+
+      DPCA=PCA
+      PD=1-EMAX*CC/(C50+CC)			
+      PCA : {deriv=RPCA*PD - KPCA*DPCA, init = PCA0}
+   	  }# end ODE
+   }# end MODEL_PREDICTION
+
+	RANDOM_VARIABLE_DEFINITION(level=DV){
+      EPS_PCA ~ Normal( mean=0, var=1)
+	}
+
+   OBSERVATION{
+   	 PCA_obs : {type is additiveError, additive = RUV_FX, eps = EPS_PCA, prediction = PCA }
+   }# end OBSERVATION
+} # end of model object
+
+warfarin_PKPD_turnover_task = taskObj {
+ESTIMATE{ 
+		set algo is saem
+}
+} # end of task object
+
+warfarin_PK_ODE_mog = mogObj {
+    OBJECTS{
+		warfarin_PKPD_turnover_dat : { type is dataObj }
+		warfarin_PKPD_turnover_mdl : { type is mdlObj }
+		warfarin_PKPD_turnover_par : { type is parObj }
+		warfarin_PKPD_turnover_task : { type is taskObj }
+	}
+}

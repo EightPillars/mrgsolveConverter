@@ -1,0 +1,25 @@
+-------------------------------------------------------------------------------
+Test set: eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest
+-------------------------------------------------------------------------------
+Tests run: 21, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.259 sec - in eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest
+testWriteDesignSpaceBolusAmtRange(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.014 sec
+testWriteDesignSpaceInfusionAmtRange(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.013 sec
+testWriteDesignSpaceParameterRange(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.014 sec
+testWriteDesignSpaceCovariateRange(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.013 sec
+testWriteDesignSpaceBolusAmtDiscrete(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.013 sec
+testWriteDesignSpaceSampleTimesDiscrete(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.012 sec
+testWriteDesignSpaceNumberArmsDiscrete(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.012 sec
+testWriteDesignSpaceNumberTimesDiscrete(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.012 sec
+testWriteDesignSpaceParameterDiscrete(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.012 sec
+testWriteDesignSpaceInfusionAmtDiscrete(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.011 sec
+testWriteDesignSpaceArmsSizeDiscrete(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.011 sec
+testWriteDesignSpaceDurationDiscrete(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.012 sec
+testWriteDesignSpaceCovariateDiscrete(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.011 sec
+testWriteDesignSpaces(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.012 sec
+testWriteDesignSpaceDurationRange(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.011 sec
+testWriteDesignSpaceArmSizeRange(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.011 sec
+testWriteDesignSpaceNumberTimesRange(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.011 sec
+testWriteDesignSpaceDoseTimeRange(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.012 sec
+testWriteDesignSpaceSampleTimesRange(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.011 sec
+testWriteDesignSpaceNumberArmsRange(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.012 sec
+testWriteDesignSpaceDoseTimeDiscrete(eu.ddmore.converter.mdl2pharmml08.TrialDesignDesignSpacePrinterTest)  Time elapsed: 0.012 sec

@@ -1,0 +1,7 @@
+-------------------------------------------------------------------------------
+Test set: eu.ddmore.converter.mdl2pharmml08.ModellingStepsPrinterSimulateTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.108 sec - in eu.ddmore.converter.mdl2pharmml08.ModellingStepsPrinterSimulateTest
+testSimulationStepNoTargetSettings(eu.ddmore.converter.mdl2pharmml08.ModellingStepsPrinterSimulateTest)  Time elapsed: 0.038 sec
+testSimulationStepTargetSettingsFile(eu.ddmore.converter.mdl2pharmml08.ModellingStepsPrinterSimulateTest)  Time elapsed: 0.036 sec
+testSimulationStepTargetSettingsOnly(eu.ddmore.converter.mdl2pharmml08.ModellingStepsPrinterSimulateTest)  Time elapsed: 0.033 sec
