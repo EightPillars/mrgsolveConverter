@@ -84,8 +84,7 @@ class InfixMathsExpressionBuilder {
 	def getSymbolReference(SymbolDefinition it){
 		val blkId = blockId
 		'''
-			«IF blkId != GLOBAL_VAR»«blkId ?: 'ERROR!'». «ENDIF»«name»
-		'''
+			«IF blkId != GLOBAL_VAR»«blkId ?: 'ERROR!'». «ENDIF»«name»'''
 	}
 	
 	def getUncertMLSymbolReference(SymbolDefinition it){
@@ -96,27 +95,28 @@ class InfixMathsExpressionBuilder {
 	}
 	
 	def getBlockId(SymbolDefinition it){
-		val blk = owningBlock
-		val blkName = blk.identifier
-		val blkId = blockPharmMLModelMapping.get(blkName)
-		switch(blkName){
-			case BlockDefinitionTable::VAR_LVL_BLK_NAME:
-				if((it as ListDefinition).firstAttributeList.getAttributeEnumValue('type') == 'parameter') 'vm_mdl'
-				else 'vm_err'
-			case BlockDefinitionTable::OBS_BLK_NAME:{
-				// number obs based on order in block.
-				var cntr = 1
-				for(obsStmt : blk.statements){
-					switch(obsStmt){
-						ListDefinition:
-							if(obsStmt.name == name) return blkId + cntr
-					}
-					if(!(obsStmt instanceof EquationDefinition)) cntr++
-				}
-				GLOBAL_VAR
-			}
-			default: blkId
-		}
+		GLOBAL_VAR
+//		val blk = owningBlock
+//		val blkName = blk.identifier
+//		val blkId = blockPharmMLModelMapping.get(blkName)
+//		switch(blkName){
+//			case BlockDefinitionTable::VAR_LVL_BLK_NAME:
+//				if((it as ListDefinition).firstAttributeList.getAttributeEnumValue('type') == 'parameter') 'vm_mdl'
+//				else 'vm_err'
+//			case BlockDefinitionTable::OBS_BLK_NAME:{
+//				// number obs based on order in block.
+//				var cntr = 1
+//				for(obsStmt : blk.statements){
+//					switch(obsStmt){
+//						ListDefinition:
+//							if(obsStmt.name == name) return blkId + cntr
+//					}
+//					if(!(obsStmt instanceof EquationDefinition)) cntr++
+//				}
+//				GLOBAL_VAR
+//			}
+//			default: blkId
+//		}
 	}
 	
 	def CharSequence getSymbolReference(SymbolReference it){
@@ -183,8 +183,8 @@ class InfixMathsExpressionBuilder {
 						<ct:RowsNumber>
 							<math:Binop op="plus">
 								<math:Binop op="minus">
-									«indexExpr.rowIdx.end.pharmMLExpr»
-									«indexExpr.rowIdx.begin.pharmMLExpr»
+									«indexExpr.rowIdx.end.infixExpr»
+									«indexExpr.rowIdx.begin.infixExpr»
 								</math:Binop>
 								<ct:Int>1</ct:Int>
 							</math:Binop>
@@ -197,8 +197,8 @@ class InfixMathsExpressionBuilder {
 						<ct:ColumnsNumber>
 							<math:Binop op="plus">
 								<math:Binop op="minus">
-									«indexExpr.colIdx.end.pharmMLExpr»
-									«indexExpr.colIdx.begin.pharmMLExpr»
+									«indexExpr.colIdx.end.infixExpr»
+									«indexExpr.colIdx.begin.infixExpr»
 								</math:Binop>
 								<ct:Int>1</ct:Int>
 							</math:Binop>
@@ -229,8 +229,8 @@ class InfixMathsExpressionBuilder {
 					<ct:SegmentLength>
 						<math:Binop op="plus">
 							<math:Binop op="minus">
-								«indexExpr.rowIdx.end.pharmMLExpr»
-								«indexExpr.rowIdx.begin.pharmMLExpr»
+								«indexExpr.rowIdx.end.infixExpr»
+								«indexExpr.rowIdx.begin.infixExpr»
 							</math:Binop>
 							<ct:Int>1</ct:Int>
 						</math:Binop>
@@ -254,11 +254,11 @@ class InfixMathsExpressionBuilder {
 	'''
 	
 	def getExpressionAsEquation(Expression it)'''
-		= «pharmMLExpr»
+		= «infixExpr»
 	'''
 	
 	def getExpressionAsAssignment(Expression it)'''
-		= «pharmMLExpr»
+		= «infixExpr»
 	'''
 	
 	def getExpressionAsRange(Expression expr){
@@ -269,12 +269,12 @@ class InfixMathsExpressionBuilder {
 					«IF expr instanceof VectorLiteral»
 						<ct:LeftEndpoint>
 							<ct:Assign>
-								«if(0 < rangeVect.size) expr.vector.get(0).pharmMLExpr else '<Error!/>'»
+								«if(0 < rangeVect.size) expr.vector.get(0).infixExpr else '<Error!/>'»
 							</ct:Assign>
 						</ct:LeftEndpoint>
 						<ct:RightEndpoint>
 							<ct:Assign>
-								«if(1 < rangeVect.size) expr.vector.get(1).pharmMLExpr else '<Error!/>'»
+								«if(1 < rangeVect.size) expr.vector.get(1).infixExpr else '<Error!/>'»
 							</ct:Assign>
 						</ct:RightEndpoint>
 					«ELSE»
@@ -286,7 +286,7 @@ class InfixMathsExpressionBuilder {
 	}
 	
 	
-    def CharSequence getPharmMLExpr(Expression expr){
+    def CharSequence getInfixExpr(Expression expr){
     	switch(expr){
     		OrExpression:
     			getOrExpression(expr)
@@ -322,13 +322,13 @@ class InfixMathsExpressionBuilder {
     			getVectorLiteralExpression(expr)
     		}
     		VectorElement:{
-    			expr.element.pharmMLExpr
+    			expr.element.infixExpr
     		}
     		MatrixLiteral:{
     			getMatrixLiteralExpression(expr)
     		}
     		MatrixElement:{
-    			expr.cell.pharmMLExpr
+    			expr.cell.infixExpr
     		}
     		BooleanLiteral:{
     			getBooleanLiteral(expr)
@@ -355,7 +355,7 @@ class InfixMathsExpressionBuilder {
     	}
     }
 	
-	def getPharmMLBinop(String operator){
+	def getInfixBinop(String operator){
 		switch(operator){
 //			case '+': 'plus'
 //			case '-': 'minus'
@@ -375,7 +375,7 @@ class InfixMathsExpressionBuilder {
 		}
 	}
 	
-	def getPharmMLUniop(String operator){
+	def getInfixUniop(String operator){
 		switch(operator){
 //			case '+': 'plus'
 //			case '-': 'minus'
@@ -400,7 +400,7 @@ class InfixMathsExpressionBuilder {
 		}
 	}
 	
-	def getPharmMlFunction(String fName){
+	def getInfixFunction(String fName){
 		switch(fName){
 //			case 'ln' : 'log'
 //			case 'invLogit': 'logistic'
@@ -419,18 +419,18 @@ class InfixMathsExpressionBuilder {
 								«IF e.evaluateStringExpression == null»
 									«e.expressionAsAssignment»
 								«ELSE»
-									«e.pharmMLExpr»
+									«e.infixExpr»
 								«ENDIF»
 							«ELSE»
-								«e.pharmMLExpr»
+								«e.infixExpr»
 							«ENDIF»
 						«ELSE»
-							«e.pharmMLExpr»
+							«e.infixExpr»
 						«ENDIF»
 					«ELSEIF e.symbolRef.isFunction»
 						«e.expressionAsAssignment»
 					«ELSE»
-						«e.pharmMLExpr»
+						«e.infixExpr»
 					«ENDIF»
 				«ENDFOR»
 			</ct:VectorElements>
@@ -454,13 +454,10 @@ class InfixMathsExpressionBuilder {
 
 
 	def getParExpression(ParExpression it)'''
-		(«expr.pharmMLExpr»)
-	'''
+		(«expr.infixExpr»)'''
 	
 	def getUnaryExpression(UnaryExpression it)'''
-		«feature.pharmMLUniop»
-		«operand.pharmMLExpr»
-	'''
+		«feature.infixUniop»«operand.infixExpr»'''
 	
 	def getMultiplicativeExpression(MultiplicativeExpression it){
 		getBinaryOperator(feature, leftOperand, rightOperand)
@@ -491,10 +488,7 @@ class InfixMathsExpressionBuilder {
 	}
 		
 	def getBinaryOperator(String feature, Expression leftOperand, Expression rightOperand)'''
-		«leftOperand.pharmMLExpr»
-		«feature.pharmMLBinop»
-		«rightOperand.pharmMLExpr»
-	'''
+		«leftOperand.infixExpr» «feature.infixBinop» «rightOperand.infixExpr»'''
 	
 	def getPiecewiseExpression(PiecewiseExpression it)'''
 		<math:Piecewise>
@@ -503,7 +497,7 @@ class InfixMathsExpressionBuilder {
 			«ENDFOR»
 			«IF otherwise != null»
 				<math:Piece>
-					«otherwise.pharmMLExpr»
+					«otherwise.infixExpr»
 					<math:Condition>
 						<math:Otherwise/>
 					</math:Condition>
@@ -514,9 +508,9 @@ class InfixMathsExpressionBuilder {
 	
 	def getWhenClause(PWClause it)'''
 		<math:Piece>
-			«value.pharmMLExpr»
+			«value.infixExpr»
 			<math:Condition>
-				«cond.pharmMLExpr»
+				«cond.infixExpr»
 			</math:Condition>
 		</math:Piece>
 	'''
@@ -528,7 +522,7 @@ class InfixMathsExpressionBuilder {
 			«ENDFOR»
 			«IF elseClause != null»
 				<math:Piece>
-					«elseClause.value.pharmMLExpr»
+					«elseClause.value.infixExpr»
 					<math:Condition>
 						<math:Otherwise/>
 					</math:Condition>
@@ -539,24 +533,22 @@ class InfixMathsExpressionBuilder {
 	
 	def getIfElseClause(IfExprPart it)'''
 		<math:Piece>
-			«value.pharmMLExpr»
+			«value.infixExpr»
 			<math:Condition>
-				«cond.pharmMLExpr»
+				«cond.infixExpr»
 			</math:Condition>
 		</math:Piece>
 	'''
 	
 	def getStringLiteral(StringLiteral it) '''
-		<ct:String>«value»</ct:String>
-	'''
+		"«value»"'''
 	
 	def getEnumExpression(EnumExpression it)'''
 		<ct:String>«enumValue»</ct:String>
 	'''
 	
 	def getIntegerLiteral(IntegerLiteral it) '''
-		<ct:Int>«value»</ct:Int>
-	'''
+		«value»'''
 	
 	def getCommonConstantLiteral(ConstantLiteral it) {
 		val constType = switch(value){
@@ -580,16 +572,10 @@ class InfixMathsExpressionBuilder {
 	}
 	
 	def getRealLiteral(RealLiteral it)'''
-		<ct:Real>«value»</ct:Real>
-	'''
+		«value»'''
 	
 	def getBooleanLiteral(BooleanLiteral it)'''
-		«IF isTrue»
-			<ct:True/>
-		«ELSE»
-			<ct:False/>
-		«ENDIF»
-	'''
+		«IF isTrue»true«ELSE»false«ENDIF»'''
     
     private def writeMatrixUniOp(String opName, UnnamedFuncArguments args)'''
 		<math:MatrixUniop op="«opName»">
@@ -627,7 +613,7 @@ class InfixMathsExpressionBuilder {
     				default:{
 		    			val opType = if(a.args.size > 1) "Binop" else "Uniop"
 		    			'''
-    					<math:«opType» op="«func.pharmMlFunction»">
+    					<math:«opType» op="«func.infixFunction»">
     						«a.unnamedArguments»
     					</math:«opType»>	
     					'''
@@ -652,7 +638,7 @@ class InfixMathsExpressionBuilder {
 								«IF i == c && !withDiag»
 									<ct:Real>0</ct:Real>
 								«ELSE»
-									«mat.pop.pharmMLExpr»
+									«mat.pop.infixExpr»
 								«ENDIF»
 							«ENDFOR»
 						</ct:MatrixRow>
@@ -669,7 +655,7 @@ class InfixMathsExpressionBuilder {
 			«FOR r : matVals»
 				<ct:MatrixRow>
 					«FOR c : r»
-						«c.pharmMLExpr»
+						«c.infixExpr»
 					«ENDFOR»
 				</ct:MatrixRow>
 			«ENDFOR»
@@ -712,13 +698,13 @@ class InfixMathsExpressionBuilder {
 «««    seq functions tage args(from, to, interval)
 		<ct:Sequence>
 			<ct:Begin>
-				«args.get(0).argument.pharmMLExpr»
+				«args.get(0).argument.infixExpr»
 			</ct:Begin>
 			<ct:StepSize>
-				«args.get(2).argument.pharmMLExpr»
+				«args.get(2).argument.infixExpr»
 			</ct:StepSize>
 			<ct:End>
-				«args.get(1).argument.pharmMLExpr»
+				«args.get(1).argument.infixExpr»
 			</ct:End>
 		</ct:Sequence>
 	'''
@@ -726,14 +712,14 @@ class InfixMathsExpressionBuilder {
 	def getNamedArguments(NamedFuncArguments it)'''
 		«FOR arg : arguments»
 			<math:FunctionArgument symbId="«arg.argumentName»">
-				«arg.expression.pharmMLExpr»
+				«arg.expression.infixExpr»
 			</math:FunctionArgument>
 		«ENDFOR»
 	'''
 	
 	def getUnnamedArguments(UnnamedFuncArguments it)'''
 		«FOR arg : args»
-			«arg.argument.pharmMLExpr»
+			«arg.argument.infixExpr»
 		«ENDFOR»
 	'''
 	

@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.uk.eightpillars.mdl</groupId>
 		<artifactId>com.uk.eightpillars.mdl.parent</artifactId>
-		<version>1.6.1-SNAPSHOT</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>com.uk.eightpillars.mdl.converter.mrgsolve</artifactId>
@@ -31,4 +31,16 @@
 			</plugin>
 		</plugins>
 	</build>
+	<dependencies>
+		<dependency>
+			<groupId>eu.ddmore</groupId>
+			<artifactId>eu.ddmore.mdl</artifactId>
+			<version>1.6.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>eu.ddmore</groupId>
+			<artifactId>eu.ddmore.mdl.tests</artifactId>
+			<version>1.6.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 </project> 

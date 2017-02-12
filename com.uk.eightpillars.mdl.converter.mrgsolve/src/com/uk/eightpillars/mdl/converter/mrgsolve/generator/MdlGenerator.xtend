@@ -9,7 +9,7 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess
 import org.eclipse.xtext.generator.IGenerator
 import java.nio.file.Paths
-import com.uk.eightpillars.mdl.converter.mrgsolve.Mdl2Pharmml
+import com.uk.eightpillars.mdl.converter.mrgsolve.Mdl2MrgSolve
 
 //import static extension EcoreUtils2
 
@@ -37,7 +37,7 @@ class MdlGenerator implements IGenerator {
         val mog = mogsIt.next();
         
 
-        val xtendConverter = new Mdl2Pharmml();
+        val xtendConverter = new Mdl2MrgSolve();
         
 //        final CharSequence converted = xtendConverter.convertToPharmML(mog);
 //       	val newDest = dest.removeFileExtension().addFileExtension("xml");
