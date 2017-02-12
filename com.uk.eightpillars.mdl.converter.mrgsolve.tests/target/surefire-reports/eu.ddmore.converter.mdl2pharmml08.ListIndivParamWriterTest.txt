@@ -1,9 +1,0 @@
--------------------------------------------------------------------------------
-Test set: eu.ddmore.converter.mdl2pharmml08.ListIndivParamWriterTest
--------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.139 sec - in eu.ddmore.converter.mdl2pharmml08.ListIndivParamWriterTest
-testWriteIndivParamLinearLogitTrans(eu.ddmore.converter.mdl2pharmml08.ListIndivParamWriterTest)  Time elapsed: 0.035 sec
-testWriteIndivParamRv(eu.ddmore.converter.mdl2pharmml08.ListIndivParamWriterTest)  Time elapsed: 0.03 sec
-testWriteIndivParamGeneralNoTrans(eu.ddmore.converter.mdl2pharmml08.ListIndivParamWriterTest)  Time elapsed: 0.022 sec
-testWriteIndivParamGeneralLogitTrans(eu.ddmore.converter.mdl2pharmml08.ListIndivParamWriterTest)  Time elapsed: 0.023 sec
-testWriteIndivParamLinearNoTrans(eu.ddmore.converter.mdl2pharmml08.ListIndivParamWriterTest)  Time elapsed: 0.022 sec

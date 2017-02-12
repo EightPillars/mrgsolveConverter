@@ -1,22 +1,22 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <?artifactRepository version='1.1.0'?>
 <artifacts size='2'>
-  <artifact classifier='osgi.bundle' id='eu.ddmore.mdl.converter.mdl2pharmml.tests' version='1.6.1.v20170211-1727'>
+  <artifact classifier='osgi.bundle' id='com.uk.eightpillars.mdl.converter.mrgsolve.tests' version='1.0.0.v20170212-1619'>
     <properties size='5'>
-      <property name='artifact.size' value='358264'/>
-      <property name='download.size' value='358264'/>
-      <property name='maven-groupId' value='eu.ddmore'/>
-      <property name='maven-artifactId' value='eu.ddmore.mdl.converter.mdl2pharmml.tests'/>
-      <property name='maven-version' value='1.6.1-SNAPSHOT'/>
+      <property name='artifact.size' value='24335'/>
+      <property name='download.size' value='24335'/>
+      <property name='maven-groupId' value='com.uk.eightpillars.mdl'/>
+      <property name='maven-artifactId' value='com.uk.eightpillars.mdl.converter.mrgsolve.tests'/>
+      <property name='maven-version' value='1.0.0-SNAPSHOT'/>
     </properties>
   </artifact>
-  <artifact classifier='osgi.bundle' id='eu.ddmore.mdl.converter.mdl2pharmml.tests.source' version='1.6.1.v20170211-1727'>
+  <artifact classifier='osgi.bundle' id='com.uk.eightpillars.mdl.converter.mrgsolve.tests.source' version='1.0.0.v20170212-1619'>
     <properties size='6'>
-      <property name='artifact.size' value='262613'/>
-      <property name='download.size' value='262613'/>
-      <property name='maven-groupId' value='eu.ddmore'/>
-      <property name='maven-artifactId' value='eu.ddmore.mdl.converter.mdl2pharmml.tests'/>
-      <property name='maven-version' value='1.6.1-SNAPSHOT'/>
+      <property name='artifact.size' value='16453'/>
+      <property name='download.size' value='16453'/>
+      <property name='maven-groupId' value='com.uk.eightpillars.mdl'/>
+      <property name='maven-artifactId' value='com.uk.eightpillars.mdl.converter.mrgsolve.tests'/>
+      <property name='maven-version' value='1.0.0-SNAPSHOT'/>
       <property name='maven-classifier' value='sources'/>
     </properties>
   </artifact>

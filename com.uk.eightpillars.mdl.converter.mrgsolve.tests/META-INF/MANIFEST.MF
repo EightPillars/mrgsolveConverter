@@ -5,8 +5,7 @@ Bundle-SymbolicName: com.uk.eightpillars.mdl.converter.mrgsolve.tests;singleton:
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Require-Bundle: eu.ddmore.mdl,
- org.eclipse.core.runtime,
+Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  org.eclipse.xtext.junit4,
  org.eclipse.ui.workbench;resolution:=optional,
@@ -15,8 +14,11 @@ Require-Bundle: eu.ddmore.mdl,
  org.apache.servicemix.bundles.xerces;bundle-version="2.11.0",
  org.eclipse.xtext.xbase.lib,
  org.eclipse.emf.ecore,
- com.uk.eightpillars.mdl.converter.mrgsolve;bundle-version="1.0.0",
- eu.ddmore.mdl.tests;bundle-version="1.6.1"
+ com.uk.eightpillars.mdl.converter.mrgsolve,
+ eu.ddmore.mdl,
+ eu.ddmore.mdl.tests,
+ eu.ddmore.mdllib,
+ eu.ddmore.mdllib.tests
 Import-Package: org.apache.commons.io;version="2.0.1",
  org.apache.log4j;version="1.2.15",
  org.eclipse.xtext.junit4,

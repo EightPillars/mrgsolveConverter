@@ -4,8 +4,7 @@ Bundle-Name: Mdl2MRGSolve Converter
 Bundle-SymbolicName: com.uk.eightpillars.mdl.converter.mrgsolve;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: eu.ddmore.mdl,
- org.eclipse.xtext.xbase;visibility:=reexport,
+Require-Bundle: org.eclipse.xtext.xbase;visibility:=reexport,
  org.eclipse.xtext.generator,
  org.eclipse.emf.mwe2.launch;visibility:=reexport,
  org.apache.log4j,
@@ -19,9 +18,10 @@ Require-Bundle: eu.ddmore.mdl,
  org.objectweb.asm,
  org.eclipse.core.resources,
  org.eclipse.core.runtime,
- eu.ddmore.mdllib;visibility:=reexport,
  org.eclipse.xtext.xbase.lib,
- eu.ddmore.mdl.definitions;visibility:=reexport
+ eu.ddmore.mdl,
+ eu.ddmore.mdllib,
+ eu.ddmore.mdl.definitions
 Bundle-ActivationPolicy: lazy
 Export-Package: com.uk.eightpillars.mdl.converter.mrgsolve,
  com.uk.eightpillars.mdl.converter.mrgsolve.generator,

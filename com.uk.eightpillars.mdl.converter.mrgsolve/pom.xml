@@ -31,16 +31,24 @@
 			</plugin>
 		</plugins>
 	</build>
-	<dependencies>
+	<!-- dependencies>
 		<dependency>
 			<groupId>eu.ddmore</groupId>
 			<artifactId>eu.ddmore.mdl</artifactId>
 			<version>1.6.1-SNAPSHOT</version>
+			<type>eclipse-plugin</type>
 		</dependency>
 		<dependency>
 			<groupId>eu.ddmore</groupId>
 			<artifactId>eu.ddmore.mdl.tests</artifactId>
 			<version>1.6.1-SNAPSHOT</version>
+			<type>eclipse-test-plugin</type>
 		</dependency>
-	</dependencies>
+		<dependency>
+			<groupId>eu.ddmore</groupId>
+			<artifactId>eu.ddmore.mdl.definitions</artifactId>
+			<version>1.6.1-SNAPSHOT</version>
+			<type>eclipse-plugin</type>
+		</dependency>
+	</dependencies-->
 </project> 
